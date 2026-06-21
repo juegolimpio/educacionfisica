@@ -3,45 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Juego Limpio</title>
+<title>Juego Limpio - Educación Física</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" />
 <style>
-/* ── TOKENS COMPARTIDOS ── */
+/* ── TOKENS COMPARTIDOS Y UI PREMIUM ── */
 :root {
-  --bg:#0d1117;--sur:#161b22;--sur2:#21262d;--sur3:#2d333b;
-  --aa:#58a6ff;--ab:#f0883e;--text:#e6edf3;--muted:#768390;
-  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
-  --ok:#3fb950;--red:#f85149;--warn:#d29922;
-  --r:12px;--rs:8px;
-  --tf-blue:#58a6ff;--tf-blue-light:rgba(88,166,255,0.12);--tf-blue-dark:#79b8ff;--tf-blue-text:#79b8ff;
-  --tf-green:#3fb950;--tf-green-light:rgba(63,185,80,0.12);--tf-green-dark:#56d364;--tf-green-mid:rgba(63,185,80,0.3);
-  --tf-amber-light:rgba(210,153,34,0.12);--tf-amber-text:#e3b341;--tf-amber-dark:#d29922;
-  --tf-red:#f85149;--tf-red-light:rgba(248,81,73,0.12);
-  color-scheme:dark;
+  --bg: #0d1117;
+  --sur: #161b22;
+  --sur2: #21262d;
+  --sur3: #2d333b;
+  --aa: #58a6ff;
+  --ab: #f0883e;
+  --text: #e6edf3;
+  --muted: #768390;
+  --border: rgba(255,255,255,0.1);
+  --border2: rgba(255,255,255,0.2);
+  --ok: #3fb950;
+  --red: #f85149;
+  --warn: #d29922;
+  --r: 14px;
+  --rs: 10px;
+  
+  --tf-blue: #58a6ff;
+  --tf-blue-light: rgba(88,166,255,0.12);
+  --tf-blue-dark: #79b8ff;
+  --tf-blue-text: #79b8ff;
+  --tf-green: #3fb950;
+  --tf-green-light: rgba(63,185,80,0.12);
+  --tf-green-dark: #56d364;
+  --tf-green-mid: rgba(63,185,80,0.3);
+  --tf-amber-light: rgba(210,153,34,0.12);
+  --tf-amber-text: #e3b341;
+  --tf-amber-dark: #d29922;
+  --tf-red: #f85149;
+  --tf-red-light: rgba(248,81,73,0.12);
+  color-scheme: dark;
 }
+
 @media (prefers-color-scheme: light) {
   :root {
-    --bg:#f0f2f5;--sur:#ffffff;--sur2:#f5f5f3;--sur3:#ededea;
-    --text:#1a1a18;--muted:#6b6b66;
-    --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
-    --aa:#185FA5;--ab:#c05a00;--ok:#1D9E75;--red:#A32D2D;--warn:#854F0B;
-    --tf-blue:#185FA5;--tf-blue-light:#E6F1FB;--tf-blue-dark:#0C447C;--tf-blue-text:#0C447C;
-    --tf-green:#1D9E75;--tf-green-light:#E1F5EE;--tf-green-dark:#085041;--tf-green-mid:#9FE1CB;
-    --tf-amber-light:#FAEEDA;--tf-amber-text:#633806;--tf-amber-dark:#854F0B;
-    --tf-red:#A32D2D;--tf-red-light:#FDEAEA;
-    color-scheme:light;
+    --bg: #f4f6f9;
+    --sur: #ffffff;
+    --sur2: #f1f3f5;
+    --sur3: #e9ecef;
+    --text: #1a1f26;
+    --muted: #626d7a;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.15);
+    --aa: #1a73e8;
+    --ab: #e06d06;
+    --ok: #1e8e3e;
+    --red: #d93025;
+    --warn: #b06000;
+    
+    --tf-blue: #1a73e8;
+    --tf-blue-light: #e8f0fe;
+    --tf-blue-dark: #1557b0;
+    --tf-blue-text: #1557b0;
+    --tf-green: #1e8e3e;
+    --tf-green-light: #e6f4ea;
+    --tf-green-dark: #137333;
+    --tf-green-mid: #ceead6;
+    --tf-amber-light: #fef7e0;
+    --tf-amber-text: #b06000;
+    --tf-amber-dark: #b06000;
+    --tf-red: #d93025;
+    --tf-red-light: #fce8e6;
+    color-scheme: light;
   }
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
+
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  -webkit-tap-highlight-color: transparent; 
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
 }
 
 /* ═══════════════════════════════════════════════
@@ -53,404 +100,942 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
-  gap: 28px;
+  padding: 40px 24px;
+  gap: 32px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
 }
-.home-header { text-align: center; }
+
+.home-header { 
+  text-align: center; 
+}
 .home-header h1 {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
-  letter-spacing: .01em;
-  margin-bottom: 6px;
-  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--aa), var(--ab));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.home-header p { font-size: 14px; color: var(--muted); }
-.home-logo { font-size: 40px; margin-bottom: 4px; }
+.home-header p { 
+  font-size: 15px; 
+  color: var(--muted); 
+}
+.home-logo { 
+  font-size: 56px; 
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+
 .home-tools {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
-  max-width: 360px;
 }
 .tool-section-label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: .1em;
   color: var(--muted);
-  padding: 0 4px;
+  padding-left: 4px;
 }
+
 .hbtn {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
+  gap: 18px;
+  padding: 20px;
   border: 1px solid var(--border);
   border-radius: var(--r);
   background: var(--sur);
   cursor: pointer;
-  transition: background .15s, border-color .15s, transform .1s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   width: 100%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.hbtn:active { transform: scale(.98); background: var(--sur2); }
-.hbtn.ht  { border-color: rgba(88,166,255,.3); }
-.hbtn.htb { border-color: rgba(240,136,62,.3); }
-.hbtn.hf  { border-color: rgba(24,95,165,.3); }
-.hicon { font-size: 32px; line-height: 1; }
-.hinfo { display: flex; flex-direction: column; gap: 3px; }
-.hinfo strong { font-size: 16px; font-weight: 700; color: var(--text); }
-.hinfo span { font-size: 13px; color: var(--muted); }
-.home-footer { font-size: 12px; color: var(--muted); text-align: center; }
-.home-footer a { color: var(--muted); text-decoration: none; }
+.hbtn:active { 
+  transform: scale(.97); 
+  background: var(--sur2); 
+}
+.hbtn.ht  { border-left: 5px solid var(--aa); }
+.hbtn.hf  { border-left: 5px solid var(--ok); }
+.hicon { 
+  font-size: 36px; 
+  line-height: 1; 
+}
+.hinfo { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px; 
+}
+.hinfo strong { 
+  font-size: 17px; 
+  font-weight: 700; 
+  color: var(--text); 
+}
+.hinfo span { 
+  font-size: 13px; 
+  color: var(--muted); 
+}
+
+.home-footer { 
+  font-size: 12px; 
+  color: var(--muted); 
+  text-align: center; 
+  margin-top: auto;
+}
 
 /* ═══════════════════════════════════════════════
    LAYOUT GENÉRICO DE SUBPANTALLA
 ═══════════════════════════════════════════════ */
-.screen { flex: 1; display: none; flex-direction: column; }
-.screen.active { display: flex; }
+.screen { 
+  flex: 1; 
+  display: none; 
+  flex-direction: column; 
+}
+.screen.active { 
+  display: flex; 
+}
 
-/* Barra superior compartida */
 .topbar {
   display: flex;
   align-items: center;
-  gap: 0;
   background: var(--sur);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  padding: 4px 12px;
 }
 .back-btn {
-  padding: 13px 14px;
+  padding: 12px 16px;
   border: none;
   background: transparent;
-  color: var(--muted);
+  color: var(--text);
   font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
-  border-bottom: 3px solid transparent;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--rs);
 }
-.back-btn:active { opacity: .6; }
+.back-btn:active { 
+  background: var(--sur2); 
+}
 .topbar-title {
   flex: 1;
-  font-size: 15px;
-  font-weight: 600;
-  padding: 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  padding-left: 8px;
   color: var(--text);
 }
 
 /* ═══════════════════════════════════════════════
-   TANTEADOR — estilos específicos (dark-first)
+   TANTEADOR
 ═══════════════════════════════════════════════ */
-#tanteador-screen { background: var(--bg); }
-
-.tabs { display: flex; background: var(--sur); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.tab {
-  flex: 1; padding: 13px 4px; border: none; background: transparent;
-  color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer;
-  border-bottom: 3px solid transparent; transition: all .2s; line-height: 1.3;
+#tanteador-screen { 
+  background: var(--bg); 
 }
-.tab.active { color: var(--text); border-bottom-color: var(--aa); }
+
+.tabs { 
+  display: flex; 
+  background: var(--sur); 
+  border-bottom: 1px solid var(--border); 
+  flex-shrink: 0; 
+  overflow-x: auto;
+}
+.tab {
+  flex: 1; 
+  padding: 14px 8px; 
+  border: none; 
+  background: transparent;
+  color: var(--muted); 
+  font-size: 13px; 
+  font-weight: 700; 
+  cursor: pointer;
+  border-bottom: 3px solid transparent; 
+  transition: all 0.2s; 
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.tab.active { 
+  color: var(--text); 
+  border-bottom-color: var(--aa); 
+}
 
 .status {
-  background: var(--sur); border-bottom: 1px solid var(--border);
-  padding: 8px 16px; text-align: center; font-size: 14px; color: var(--muted);
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 42px; flex-shrink: 0;
+  background: var(--sur); 
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px; 
+  text-align: center; 
+  font-size: 13px; 
+  color: var(--muted);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px;
+  min-height: 44px; 
+  flex-shrink: 0;
 }
 .badge {
-  background: var(--sur2); padding: 2px 10px; border-radius: 20px;
-  font-size: 13px; font-weight: 600; white-space: nowrap;
+  background: var(--sur2); 
+  padding: 2px 10px; 
+  border-radius: 20px;
+  font-size: 13px; 
+  font-weight: 700; 
+  white-space: nowrap;
+  border: 1px solid var(--border);
 }
-.status.ws { background: rgba(210,153,34,.12); color: #e3b341; }
+.status.ws { 
+  background: var(--tf-amber-light); 
+  color: var(--tf-amber-text); 
+  border-bottom: 1.5px solid var(--tf-amber-dark);
+}
 
 .scoreboard {
-  flex: 1; display: grid; grid-template-columns: 1fr 20px 1fr;
-  align-items: center; padding: 14px 10px 8px; gap: 4px; min-height: 0;
+  flex: 1; 
+  display: grid; 
+  grid-template-columns: 1fr 30px 1fr;
+  align-items: center; 
+  padding: 16px 12px 10px; 
+  gap: 8px; 
+  min-height: 0;
 }
-.team { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.team { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 8px; 
+}
 .tname {
-  width: 100%; text-align: center; background: var(--sur);
-  border: 1px solid var(--border); border-radius: var(--rs);
-  color: var(--text); font-size: 14px; font-weight: 700;
-  padding: 7px 6px; text-transform: uppercase; letter-spacing: .05em;
+  width: 100%; 
+  text-align: center; 
+  background: var(--sur);
+  border: 1px solid var(--border); 
+  border-radius: var(--rs);
+  color: var(--text); 
+  font-size: 15px; 
+  font-weight: 700;
+  padding: 8px; 
+  text-transform: uppercase; 
+  letter-spacing: .05em;
 }
-.tname:focus { outline: none; border-color: var(--aa); }
+.tname:focus { 
+  outline: none; 
+  border-color: var(--aa); 
+}
 .srv {
-  height: 16px; display: flex; align-items: center; justify-content: center;
-  gap: 4px; font-size: 11px; font-weight: 600; color: var(--aa);
-  opacity: 0; transition: opacity .2s;
+  height: 18px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  gap: 4px; 
+  font-size: 11px; 
+  font-weight: 700; 
+  color: var(--aa);
+  opacity: 0; 
+  transition: opacity .2s;
 }
-.srv.on { opacity: 1; }
-.sdot { width: 8px; height: 8px; border-radius: 50%; background: var(--aa); box-shadow: 0 0 7px var(--aa); }
+.srv.on { 
+  opacity: 1; 
+}
+.sdot { 
+  width: 8px; 
+  height: 8px; 
+  border-radius: 50%; 
+  background: var(--aa); 
+  box-shadow: 0 0 8px var(--aa); 
+}
+
 .score {
-  font-size: clamp(84px, 25vw, 136px); font-weight: 900; line-height: 1;
-  cursor: pointer; user-select: none; transition: transform .08s; letter-spacing: -4px;
+  font-size: clamp(80px, 24vw, 130px); 
+  font-weight: 900; 
+  line-height: 0.95;
+  cursor: pointer; 
+  user-select: none; 
+  transition: transform .08s; 
+  letter-spacing: -4px;
 }
-.score:active { transform: scale(.91); }
-.sa { color: var(--aa); } .sb { color: var(--ab); }
-.brow { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.score:active { 
+  transform: scale(.92); 
+}
+.sa { color: var(--aa); } 
+.sb { color: var(--ab); }
+
+.brow { 
+  display: flex; 
+  gap: 6px; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+}
 .bp {
-  padding: 10px 12px; border: none; border-radius: var(--rs);
-  font-size: 15px; font-weight: 700; cursor: pointer;
-  transition: transform .08s, opacity .1s; min-width: 42px;
+  padding: 12px 14px; 
+  border: none; 
+  border-radius: var(--rs);
+  font-size: 16px; 
+  font-weight: 700; 
+  cursor: pointer;
+  transition: transform .08s, opacity .1s; 
+  min-width: 46px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.bp:active { transform: scale(.93); opacity: .75; }
+.bp:active { 
+  transform: scale(.93); 
+  opacity: .75; 
+}
 .baa { background: var(--aa); color: #0d1117; }
-.bsa { background: rgba(88,166,255,.15); color: var(--aa); border: 1px solid rgba(88,166,255,.25); }
+.bsa { background: var(--sur2); color: var(--aa); border: 1px solid var(--border2); }
 .bab { background: var(--ab); color: #0d1117; }
-.bsb { background: rgba(240,136,62,.15); color: var(--ab); border: 1px solid rgba(240,136,62,.25); }
-.vs { font-size: 16px; color: var(--muted); font-weight: 300; }
+.bsb { background: var(--sur2); color: var(--ab); border: 1px solid var(--border2); }
+.vs { 
+  font-size: 18px; 
+  color: var(--muted); 
+  font-weight: 400; 
+  text-align: center;
+}
+
+/* Controles extras de partido (Faltas/Tarjetas en Básquet y Fútbol) */
+.team-extras {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  width: 100%;
+  justify-content: center;
+}
+.extra-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--sur);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.extra-btn:active {
+  background: var(--sur2);
+}
+.extra-btn.card-y { background: rgba(210,153,34,0.15); color: var(--tf-amber-text); border-color: var(--warn); }
+.extra-btn.card-r { background: rgba(248,81,73,0.15); color: var(--red); border-color: var(--red); }
+.extra-btn.foul-btn { background: var(--sur3); color: var(--text); }
+.extra-btn.foul-btn.bonus { background: var(--tf-red-light); color: var(--red); border-color: var(--red); animation: pulse-border 1.5s infinite; }
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(248,81,73,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(248,81,73,0); }
+  100% { box-shadow: 0 0 0 0 rgba(248,81,73,0); }
+}
 
 .hbar {
-  background: var(--sur); border-top: 1px solid var(--border);
-  padding: 8px 12px; display: flex; gap: 6px; align-items: center;
-  flex-wrap: wrap; min-height: 44px; flex-shrink: 0;
+  background: var(--sur); 
+  border-top: 1px solid var(--border);
+  padding: 8px 16px; 
+  display: flex; 
+  gap: 8px; 
+  align-items: center;
+  flex-shrink: 0;
 }
-.hl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; }
-.pills { display: flex; gap: 5px; flex-wrap: wrap; }
-.pill { padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
-.pwa { background: rgba(88,166,255,.12); color: #93c5fd; border-color: rgba(88,166,255,.25); }
-.pwb { background: rgba(240,136,62,.12); color: #fdba74; border-color: rgba(240,136,62,.25); }
+.hl { 
+  font-size: 11px; 
+  color: var(--muted); 
+  text-transform: uppercase; 
+  letter-spacing: .07em; 
+  white-space: nowrap; 
+}
+.pills { 
+  display: flex; 
+  gap: 6px; 
+  flex-wrap: wrap; 
+  overflow-x: auto;
+}
+.pill { 
+  padding: 3px 10px; 
+  border-radius: 20px; 
+  font-size: 12px; 
+  font-weight: 700; 
+  border: 1px solid transparent; 
+}
+.pwa { background: var(--tf-blue-light); color: var(--tf-blue-text); border-color: rgba(88,166,255,.2); }
+.pwb { background: var(--tf-amber-light); color: var(--tf-amber-text); border-color: rgba(240,136,62,.2); }
 
 .tblock {
-  background: var(--sur); border-top: 1px solid var(--border);
-  padding: 11px 14px; flex-shrink: 0;
+  background: var(--sur); 
+  border-top: 1px solid var(--border);
+  padding: 12px 16px; 
+  flex-shrink: 0;
 }
-.trow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.trow { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  justify-content: space-between;
+}
 .tdisp {
-  font-size: 42px; font-weight: 800; font-variant-numeric: tabular-nums;
-  letter-spacing: -1px; min-width: 105px; transition: color .3s;
+  font-size: 40px; 
+  font-weight: 800; 
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px; 
+  transition: color .2s;
 }
-.tdisp.run { color: var(--ok); } .tdisp.zero { color: var(--red); } .tdisp.idle { color: var(--text); }
-.tbtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.tdisp.run { color: var(--ok); } 
+.tdisp.zero { color: var(--red); } 
+.tdisp.idle { color: var(--text); }
+.tbtns { 
+  display: flex; 
+  gap: 8px; 
+}
 .tb {
-  padding: 9px 13px; border-radius: var(--rs); border: 1px solid var(--border);
-  background: var(--sur2); color: var(--text); font-size: 14px; font-weight: 600;
-  cursor: pointer; white-space: nowrap;
+  padding: 10px 16px; 
+  border-radius: var(--rs); 
+  border: 1px solid var(--border);
+  background: var(--sur2); 
+  color: var(--text); 
+  font-size: 14px; 
+  font-weight: 700;
+  cursor: pointer; 
+  white-space: nowrap;
 }
-.tb:active { opacity: .7; transform: scale(.96); }
+.tb:active { 
+  opacity: .7; 
+  transform: scale(.96); 
+}
 .tb.go { background: var(--ok); color: #0d1117; border-color: transparent; }
 .tb.pause { background: var(--warn); color: #0d1117; border-color: transparent; }
-.tpresets { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.tpresets { 
+  display: flex; 
+  gap: 6px; 
+  flex-wrap: wrap; 
+  margin-top: 10px; 
+}
 .tpbtn {
-  padding: 6px 11px; border-radius: var(--rs); border: 1px solid var(--border);
-  background: var(--sur2); color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 6px 12px; 
+  border-radius: var(--rs); 
+  border: 1px solid var(--border);
+  background: var(--sur2); 
+  color: var(--muted); 
+  font-size: 13px; 
+  font-weight: 600; 
+  cursor: pointer;
 }
 .tpbtn:active { opacity: .7; }
 .tpbtn.tap { border-color: var(--aa); color: var(--aa); background: rgba(88,166,255,.1); }
-.tmrow { display: flex; align-items: center; gap: 7px; margin-top: 8px; }
+.tmrow { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  margin-top: 10px; 
+}
 .tminp {
-  width: 58px; padding: 7px 8px; background: var(--sur2);
-  border: 1px solid var(--border); border-radius: var(--rs);
-  color: var(--text); font-size: 15px; font-weight: 600; text-align: center;
+  width: 64px; 
+  padding: 6px 8px; 
+  background: var(--sur2);
+  border: 1px solid var(--border); 
+  border-radius: var(--rs);
+  color: var(--text); 
+  font-size: 14px; 
+  font-weight: 700; 
+  text-align: center;
 }
 .tminp:focus { outline: none; border-color: var(--aa); }
 .tmlbl { font-size: 13px; color: var(--muted); }
 
 .bbar {
-  background: var(--sur); border-top: 1px solid var(--border);
-  padding: 9px 12px; display: flex; gap: 7px; flex-shrink: 0;
+  background: var(--sur); 
+  border-top: 1px solid var(--border);
+  padding: 12px; 
+  display: flex; 
+  gap: 8px; 
+  flex-shrink: 0;
 }
 .ctrl {
-  flex: 1; padding: 12px 6px; border-radius: var(--rs);
-  border: 1px solid var(--border); background: var(--sur2);
-  color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center;
+  flex: 1; 
+  padding: 12px 8px; 
+  border-radius: var(--rs);
+  border: 1px solid var(--border); 
+  background: var(--sur2);
+  color: var(--text); 
+  font-size: 13px; 
+  font-weight: 700; 
+  cursor: pointer; 
+  text-align: center;
 }
 .ctrl:active { opacity: .6; transform: scale(.97); }
 .ctrl.red { border-color: rgba(248,81,73,.35); color: var(--red); }
 .ctrl.blue { border-color: rgba(88,166,255,.35); color: var(--aa); }
 
-/* Modal voleibol */
+/* Modal configuración */
 .moverlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.75); z-index: 50; align-items: flex-end;
+  display: none; 
+  position: fixed; 
+  inset: 0;
+  background: rgba(0,0,0,.75); 
+  z-index: 50; 
+  align-items: flex-end;
 }
 .moverlay.open { display: flex; }
 .modal {
-  background: var(--sur); border-radius: var(--r) var(--r) 0 0;
-  border: 1px solid var(--border); padding: 20px 20px 34px;
-  width: 100%; max-height: 85dvh; overflow-y: auto;
+  background: var(--sur); 
+  border-radius: var(--r) var(--r) 0 0;
+  border: 1px solid var(--border); 
+  padding: 24px 20px 38px;
+  width: 100%; 
+  max-height: 85dvh; 
+  overflow-y: auto;
 }
-.modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
-.mfield { margin-bottom: 14px; }
-.mfield label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .06em; }
+.modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 18px; }
+.mfield { margin-bottom: 16px; }
+.mfield label { 
+  display: block; 
+  font-size: 11px; 
+  color: var(--muted); 
+  margin-bottom: 6px; 
+  text-transform: uppercase; 
+  letter-spacing: .08em; 
+}
 .mfinp {
-  width: 100%; padding: 11px 13px; background: var(--sur2);
-  border: 1px solid var(--border); border-radius: var(--rs);
-  color: var(--text); font-size: 16px; font-weight: 600;
+  width: 100%; 
+  padding: 12px; 
+  background: var(--sur2);
+  border: 1px solid var(--border); 
+  border-radius: var(--rs);
+  color: var(--text); 
+  font-size: 15px; 
+  font-weight: 700;
 }
 .mfinp:focus { outline: none; border-color: var(--aa); }
-.mqbs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 7px; }
+.mqbs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .mqb {
-  padding: 8px 15px; border-radius: var(--rs); border: 1px solid var(--border);
-  background: var(--sur2); color: var(--muted); font-size: 15px; font-weight: 600; cursor: pointer;
+  padding: 8px 16px; 
+  border-radius: var(--rs); 
+  border: 1px solid var(--border);
+  background: var(--sur2); 
+  color: var(--muted); 
+  font-size: 14px; 
+  font-weight: 700; 
+  cursor: pointer;
 }
 .mqb.sel { border-color: var(--aa); color: var(--aa); background: rgba(88,166,255,.1); }
-.mbtns { display: flex; gap: 10px; margin-top: 18px; }
-.mbtn { flex: 1; padding: 14px; border-radius: var(--rs); border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+.mbtns { display: flex; gap: 10px; margin-top: 20px; }
+.mbtn { flex: 1; padding: 14px; border-radius: var(--rs); border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
 .mbtn.ok { background: var(--aa); color: #0d1117; }
 .mbtn.cancel { background: var(--sur2); color: var(--muted); border: 1px solid var(--border); }
 
+/* Overlay de Ganador */
 .woverlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.88); z-index: 100; flex-direction: column;
-  align-items: center; justify-content: center; gap: 14px;
-  text-align: center; padding: 28px;
+  display: none; 
+  position: fixed; 
+  inset: 0;
+  background: rgba(0,0,0,.92); 
+  z-index: 100; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  gap: 16px;
+  text-align: center; 
+  padding: 32px;
 }
 .woverlay.show { display: flex; }
-.wtrophy { font-size: 60px; }
-.wname { font-size: 28px; font-weight: 800; }
-.wsub { font-size: 15px; color: var(--muted); }
+.wtrophy { font-size: 72px; }
+.wname { font-size: 30px; font-weight: 800; }
+.wsub { font-size: 16px; color: var(--muted); }
 .wbtn {
-  margin-top: 10px; padding: 14px 38px; border-radius: var(--r);
-  border: none; background: var(--aa); color: #0d1117;
-  font-size: 16px; font-weight: 700; cursor: pointer;
+  margin-top: 12px; 
+  padding: 14px 40px; 
+  border-radius: var(--r);
+  border: none; 
+  background: var(--aa); 
+  color: #0d1117;
+  font-size: 16px; 
+  font-weight: 700; 
+  cursor: pointer;
 }
 
 /* ═══════════════════════════════════════════════
-   TORNEO FÁCIL — estilos específicos (light)
+   TORNEO FÁCIL
 ═══════════════════════════════════════════════ */
 #torneo-screen {
   background: var(--bg);
   overflow-y: auto;
 }
 #torneo-screen .topbar {
-  position: sticky; top: 0; z-index: 10;
+  position: sticky; 
+  top: 0; 
+  z-index: 10;
 }
 
 .tf-app {
-  max-width: 600px;
+  max-width: 640px;
   margin: 0 auto;
   background: var(--sur);
   border-radius: 0 0 12px 12px;
   padding: 1.5rem;
-  border: 0.5px solid var(--border);
+  border: 1px solid var(--border);
   border-top: none;
-  min-height: calc(100vh - 48px);
+  min-height: calc(100vh - 54px);
 }
 .tf-save-bar {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--sur2); border-radius: 8px;
-  padding: 8px 12px; margin-bottom: 1.25rem;
-  font-size: 13px; color: var(--muted);
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  background: var(--sur2); 
+  border-radius: 8px;
+  padding: 8px 12px; 
+  margin-bottom: 1.25rem;
+  font-size: 13px; 
+  color: var(--muted);
 }
 .tf-save-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tf-green); flex-shrink: 0; }
 .tf-save-dot.warn { background: #BA7517; }
 .tf-restored {
-  background: var(--tf-amber-light); border-radius: 8px;
-  padding: 8px 12px; font-size: 13px; color: var(--tf-amber-text);
-  margin-bottom: 1rem; display: none; align-items: center; gap: 8px;
+  background: var(--tf-amber-light); 
+  border-radius: 8px;
+  padding: 10px 14px; 
+  font-size: 13px; 
+  color: var(--tf-amber-text);
+  margin-bottom: 1rem; 
+  display: none; 
+  align-items: center; 
+  gap: 8px;
+  border: 1px solid rgba(210,153,34,0.15);
 }
-.tf-field-label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+.tf-field-label { 
+  font-size: 12px; 
+  color: var(--muted); 
+  display: block; 
+  margin-bottom: 6px; 
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 .tf-input {
-  width: 100%; padding: 8px 10px; font-size: 14px;
-  border: 0.5px solid var(--border2); border-radius: 8px;
-  background: var(--sur2); color: var(--text); outline: none;
+  width: 100%; 
+  padding: 10px 12px; 
+  font-size: 14px;
+  border: 1px solid var(--border2); 
+  border-radius: 8px;
+  background: var(--sur2); 
+  color: var(--text); 
+  outline: none;
 }
 .tf-input:focus { border-color: var(--tf-blue); }
+
 input[type="number"].tf-score {
-  width: 40px; text-align: center; padding: 4px 2px; font-size: 14px;
-  border: 0.5px solid var(--border2); border-radius: 8px;
-  background: var(--sur2); color: var(--text); outline: none;
+  width: 44px; 
+  text-align: center; 
+  padding: 6px 2px; 
+  font-size: 14px;
+  border: 1px solid var(--border2); 
+  border-radius: 8px;
+  background: var(--sur2); 
+  color: var(--text); 
+  outline: none;
   -moz-appearance: textfield;
 }
 input[type="number"].tf-score::-webkit-inner-spin-button,
 input[type="number"].tf-score::-webkit-outer-spin-button { -webkit-appearance: none; }
 input[type="number"].tf-score:focus { border-color: var(--tf-blue); }
 input.input-error { border-color: var(--tf-red) !important; background: var(--tf-red-light); }
-.tf-team-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+
+.tf-team-row { 
+  display: flex; 
+  gap: 8px; 
+  align-items: center; 
+  margin-bottom: 8px; 
+}
 .tf-team-row .tf-input { flex: 1; width: auto; }
 .tf-icon-btn {
-  padding: 0 10px; height: 36px; font-size: 16px;
-  border: 0.5px solid var(--border2); border-radius: 8px;
-  background: var(--sur2); color: var(--text); cursor: pointer;
+  padding: 0 10px; 
+  height: 38px; 
+  font-size: 16px;
+  border: 1px solid var(--border2); 
+  border-radius: 8px;
+  background: var(--sur2); 
+  color: var(--text); 
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .tf-icon-btn:hover { background: var(--bg); }
-.tf-formats { display: flex; flex-wrap: wrap; gap: 8px; margin: 1rem 0; }
-.tf-fmt-btn {
-  padding: 6px 14px; font-size: 13px; border-radius: 8px;
-  border: 0.5px solid var(--border2); background: var(--sur2);
-  color: var(--text); cursor: pointer;
+
+.tf-formats { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 8px; 
+  margin: 1rem 0; 
 }
-.tf-fmt-btn.active { background: var(--tf-blue); color: var(--tf-blue-light); border-color: var(--tf-blue); }
+.tf-fmt-btn {
+  padding: 8px 16px; 
+  font-size: 13px; 
+  border-radius: 8px;
+  border: 1px solid var(--border2); 
+  background: var(--sur2);
+  color: var(--text); 
+  cursor: pointer;
+  font-weight: 600;
+}
+.tf-fmt-btn.active { background: var(--tf-blue); color: var(--bg); border-color: var(--tf-blue); }
 .tf-fmt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .tf-info-box {
-  background: var(--sur2); border-radius: 8px;
-  padding: 10px 14px; font-size: 13px; color: var(--muted); margin-bottom: 1rem;
+  background: var(--sur2); 
+  border-radius: 8px;
+  padding: 12px 16px; 
+  font-size: 13px; 
+  color: var(--muted); 
+  margin-bottom: 1rem;
+  line-height: 1.4;
 }
 .tf-primary-btn {
-  width: 100%; padding: 11px; font-size: 15px; font-weight: 500;
-  border-radius: 8px; border: none; background: var(--tf-blue);
-  color: #E6F1FB; cursor: pointer; margin-top: 1rem;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; 
+  padding: 12px; 
+  font-size: 15px; 
+  font-weight: 700;
+  border-radius: 8px; 
+  border: none; 
+  background: var(--tf-blue);
+  color: var(--bg); 
+  cursor: pointer; 
+  margin-top: 1rem;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 6px;
 }
 .tf-primary-btn:hover { background: var(--tf-blue-dark); }
+
 .tf-sec-btn {
-  padding: 7px 14px; font-size: 13px; border-radius: 8px;
-  border: 0.5px solid var(--border2); background: transparent;
-  color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; 
+  font-size: 13px; 
+  border-radius: 8px;
+  border: 1px solid var(--border2); 
+  background: transparent;
+  color: var(--text); 
+  cursor: pointer; 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px;
+  font-weight: 600;
 }
 .tf-sec-btn:hover { background: var(--sur2); }
+
 .tf-report-btn {
-  padding: 7px 14px; font-size: 13px; border-radius: 8px;
-  border: 0.5px solid var(--tf-green); background: var(--tf-green-light);
-  color: var(--tf-green-dark); cursor: pointer; font-weight: 500;
-  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; 
+  font-size: 13px; 
+  border-radius: 8px;
+  border: 1px solid var(--tf-green); 
+  background: var(--tf-green-light);
+  color: var(--tf-green-dark); 
+  cursor: pointer; 
+  font-weight: 600;
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px;
 }
 .tf-report-btn:hover { background: var(--tf-green-mid); }
+
 .tf-section-title {
-  font-size: 12px; font-weight: 500; color: var(--muted);
-  text-transform: uppercase; letter-spacing: .05em;
-  margin-bottom: 10px; margin-top: 1.25rem;
+  font-size: 11px; 
+  font-weight: 700; 
+  color: var(--muted);
+  text-transform: uppercase; 
+  letter-spacing: .08em;
+  margin-bottom: 8px; 
+  margin-top: 1.5rem;
+}
+
+/* Match Card & Fair Play Controls */
+.tf-match-card-wrapper {
+  background: var(--sur);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  margin-bottom: 10px;
+  padding: 10px;
 }
 .tf-match-card {
-  background: var(--sur); border: 0.5px solid var(--border);
-  border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
-  display: flex; align-items: center; gap: 6px;
+  display: flex; 
+  align-items: center; 
+  gap: 6px;
 }
-.tf-match-num { font-size: 11px; color: var(--muted); min-width: 22px; }
-.tf-team-a { flex: 1; text-align: right; font-size: 14px; font-weight: 500; color: var(--text); }
-.tf-vs { font-size: 11px; color: var(--muted); padding: 0 2px; }
-.tf-team-b { flex: 1; text-align: left; font-size: 14px; font-weight: 500; color: var(--text); }
-.tf-score-wrap { display: flex; gap: 3px; align-items: center; }
-.tf-score-sep { font-size: 13px; color: var(--muted); }
+.tf-match-num { 
+  font-size: 11px; 
+  color: var(--muted); 
+  min-width: 24px; 
+}
+.tf-team-a { 
+  flex: 1; 
+  text-align: right; 
+  font-size: 14px; 
+  font-weight: 600; 
+  color: var(--text); 
+}
+.tf-vs { 
+  font-size: 11px; 
+  color: var(--muted); 
+  padding: 0 4px; 
+}
+.tf-team-b { 
+  flex: 1; 
+  text-align: left; 
+  font-size: 14px; 
+  font-weight: 600; 
+  color: var(--text); 
+}
+.tf-score-wrap { 
+  display: flex; 
+  gap: 3px; 
+  align-items: center; 
+}
+.tf-score-sep { 
+  font-size: 13px; 
+  color: var(--muted); 
+}
+
+/* Fair play evaluation in match card */
+.tf-fp-eval {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  font-size: 12px;
+}
+.tf-fp-label {
+  color: var(--muted);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tf-stars-container {
+  display: flex;
+  gap: 4px;
+}
+.tf-star {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+.tf-star.active {
+  color: #ffb800;
+}
+
 .tf-phase-badge {
-  display: inline-block; padding: 2px 10px; border-radius: 8px; font-size: 11px;
-  margin-bottom: 8px; background: var(--tf-blue-light); color: var(--tf-blue-text);
+  display: inline-block; 
+  padding: 3px 10px; 
+  border-radius: 8px; 
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px; 
+  background: var(--tf-blue-light); 
+  color: var(--tf-blue-text);
 }
-.tf-phase-badge.final { background: var(--tf-amber-light); color: var(--tf-amber-text); }
-.tf-table-wrap { overflow-x: auto; margin-top: 1rem; }
-.tf-table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tf-phase-badge.final { 
+  background: var(--tf-amber-light); 
+  color: var(--tf-amber-text); 
+}
+
+.tf-table-wrap { 
+  overflow-x: auto; 
+  margin-top: 1.25rem; 
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.tf-table-wrap table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 13px; 
+}
 .tf-table-wrap th {
-  text-align: left; padding: 6px 10px;
-  border-bottom: 0.5px solid var(--border2); color: var(--muted); font-weight: 500;
+  text-align: left; 
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border2); 
+  color: var(--muted); 
+  font-weight: 700;
+  background: var(--sur2);
 }
-.tf-table-wrap td { padding: 6px 10px; border-bottom: 0.5px solid var(--border); color: var(--text); }
+.tf-table-wrap td { 
+  padding: 8px 12px; 
+  border-bottom: 1px solid var(--border); 
+  color: var(--text); 
+}
 .tf-td-c { text-align: center; }
-.tf-table-wrap tr.leader { background: var(--tf-green-light); }
+.tf-table-wrap tr.leader { background: rgba(63,185,80,0.08); }
+
 .tf-winner-banner {
-  background: var(--tf-green-light); border: 0.5px solid var(--tf-green);
-  border-radius: 8px; padding: 12px 16px; margin-top: 1rem;
-  font-size: 15px; font-weight: 500; color: var(--tf-green-dark);
-  text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--tf-green-light); 
+  border: 1px solid var(--tf-green);
+  border-radius: 8px; 
+  padding: 12px 16px; 
+  margin-top: 1rem;
+  font-size: 15px; 
+  font-weight: 700; 
+  color: var(--tf-green-dark);
+  text-align: center; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px;
 }
-.tf-action-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.25rem; }
+.tf-action-row { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 8px; 
+  margin-top: 1.5rem; 
+}
 .tf-report-box {
-  background: var(--sur2); border: 0.5px solid var(--border2);
-  border-radius: 8px; padding: 14px; margin-top: 1rem;
-  font-size: 13px; font-family: monospace; white-space: pre-wrap;
-  line-height: 1.7; color: var(--text);
+  background: var(--sur2); 
+  border: 1px solid var(--border2);
+  border-radius: 8px; 
+  padding: 14px; 
+  margin-top: 1rem;
+  font-size: 13px; 
+  font-family: monospace; 
+  white-space: pre-wrap;
+  line-height: 1.6; 
+  color: var(--text);
 }
-.tf-copy-ok { font-size: 13px; color: var(--tf-green-dark); display: none; align-items: center; gap: 4px; }
+.tf-copy-ok { 
+  font-size: 13px; 
+  color: var(--tf-green-dark); 
+  display: none; 
+  align-items: center; 
+  gap: 4px; 
+  font-weight: 600;
+}
 .tf-reset-btn {
-  margin-top: 1.5rem; font-size: 13px; color: var(--tf-red);
-  background: none; border: none; cursor: pointer; text-decoration: underline;
-  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 1.5rem; 
+  font-size: 13px; 
+  color: var(--tf-red);
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+  text-decoration: underline;
+  display: inline-flex; 
+  align-items: center; 
+  gap: 4px;
 }
-.tf-validation-msg { font-size: 12px; color: var(--tf-red); margin-top: 4px; display: none; }
-.tf-section-header { font-size: 15px; font-weight: 500; margin-bottom: 1rem; color: var(--text); }
-.tf-name-wrap { margin-bottom: 1rem; }
+.tf-validation-msg { 
+  font-size: 13px; 
+  color: var(--tf-red); 
+  margin-top: 6px; 
+  display: none; 
+}
+.tf-section-header { 
+  font-size: 16px; 
+  font-weight: 700; 
+  margin-bottom: 1rem; 
+  color: var(--text); 
+}
+.tf-name-wrap { margin-bottom: 1.25rem; }
 </style>
 </head>
 <body>
@@ -460,27 +1045,30 @@ input.input-error { border-color: var(--tf-red) !important; background: var(--tf
 ════════════════════════════════════════════ -->
 <div id="home">
   <div class="home-header">
-    <div class="home-logo">⚽</div>
+    <div class="home-logo">🏆</div>
     <h1>Juego Limpio</h1>
-    <p>Herramientas para Educación Física</p>
+    <p>Gestión Deportiva y Formativa de Educación Física</p>
   </div>
   <div class="home-tools">
     <span class="tool-section-label">Marcador en vivo</span>
     <button class="hbtn ht" onclick="goTo('tanteador')">
       <div class="hicon">🏐</div>
       <div class="hinfo">
-        <strong>Tanteador</strong>
-        <span>Vóley · Básquet · Libre</span>
+        <strong>Tanteador Escolar</strong>
+        <span>Voleibol · Básquet · Fútbol · Libre</span>
       </div>
     </button>
     <span class="tool-section-label" style="margin-top:4px;">Organización</span>
     <button class="hbtn hf" onclick="goTo('torneo')">
-      <div class="hicon">🏆</div>
+      <div class="hicon">📊</div>
       <div class="hinfo">
         <strong>Torneo Fácil</strong>
-        <span>Fixture · Posiciones · Informe</span>
+        <span>Fixture · Tabla Deportiva y Conductual</span>
       </div>
     </button>
+  </div>
+  <div class="home-footer">
+    <span>Educar en valores a través del movimiento</span>
   </div>
 </div>
 
@@ -491,8 +1079,9 @@ input.input-error { border-color: var(--tf-red) !important; background: var(--tf
 
   <div class="tabs">
     <button class="back-btn" onclick="goHome()" title="Inicio">←</button>
-    <button class="tab active" id="tab-v" onclick="goTab('v')">🏐 Vóley</button>
+    <button class="tab active" id="tab-v" onclick="goTab('v')">🏐 Voleibol</button>
     <button class="tab" id="tab-b" onclick="goTab('b')">🏀 Básquet</button>
+    <button class="tab" id="tab-f" onclick="goTab('f')">⚽ Fútbol</button>
     <button class="tab" id="tab-l" onclick="goTab('l')">🎯 Libre</button>
   </div>
 
@@ -504,13 +1093,21 @@ input.input-error { border-color: var(--tf-red) !important; background: var(--tf
       <div class="srv" id="srv-a"><div class="sdot"></div> SAQUE</div>
       <div class="score sa" id="sca" onclick="add('a',1)">0</div>
       <div class="brow" id="btna"></div>
+      
+      <!-- Controles dinámicos extras -->
+      <div class="team-extras" id="extras-a" style="display:none"></div>
     </div>
+    
     <div class="vs">—</div>
+    
     <div class="team">
       <input class="tname" id="nb" maxlength="12" oninput="onName()">
       <div class="srv" id="srv-b"><div class="sdot"></div> SAQUE</div>
       <div class="score sb" id="scb" onclick="add('b',1)">0</div>
       <div class="brow" id="btnb"></div>
+      
+      <!-- Controles dinámicos extras -->
+      <div class="team-extras" id="extras-b" style="display:none"></div>
     </div>
   </div>
 
@@ -541,7 +1138,7 @@ input.input-error { border-color: var(--tf-red) !important; background: var(--tf
   </div>
 </div>
 
-<!-- Config modal -->
+<!-- Modal voleibol -->
 <div class="moverlay" id="moverlay">
   <div class="modal">
     <h3>⚙ Configuración — Voleibol</h3>
@@ -596,11 +1193,11 @@ input.input-error { border-color: var(--tf-red) !important; background: var(--tf
     <div id="tf-setup-area">
       <div class="tf-name-wrap">
         <label class="tf-field-label">Nombre del torneo (opcional)</label>
-        <input type="text" id="tf-torneo-name" class="tf-input" placeholder="Ej: Campeonato 3er año grupo B" oninput="tfScheduleSave()">
+        <input type="text" id="tf-torneo-name" class="tf-input" placeholder="Ej: Torneo Interclases 5to Año" oninput="tfScheduleSave()">
       </div>
       <label class="tf-field-label">Equipos</label>
       <div id="tf-teams-list"></div>
-      <button class="tf-sec-btn" id="tf-add-team-btn" style="margin-bottom:1rem;">
+      <button class="tf-sec-btn" id="tf-add-team-btn" style="margin-bottom:1.5rem; margin-top: 0.5rem;">
         <i class="ti ti-plus"></i> Agregar equipo
       </button>
       <label class="tf-field-label">Formato</label>
@@ -616,7 +1213,7 @@ input.input-error { border-color: var(--tf-red) !important; background: var(--tf
 </div>
 
 <!-- ════════════════════════════════════════════
-     NAVEGACIÓN
+     NAVEGACIÓN GENERAL
 ════════════════════════════════════════════ -->
 <script>
 const APP_SK = 'juegolimpio_screen';
@@ -640,7 +1237,6 @@ function goTo(screen) {
   localStorage.setItem(APP_SK, screen);
 }
 
-// Restaurar última pantalla al cargar
 window.addEventListener('DOMContentLoaded', () => {
   const last = localStorage.getItem(APP_SK);
   if (last === 'tanteador') {
@@ -649,41 +1245,54 @@ window.addEventListener('DOMContentLoaded', () => {
   } else if (last === 'torneo') {
     goTo('torneo');
   } else {
-    tInit(); // pre-init tanteador en background
+    tInit(); 
   }
 });
 </script>
 
 <!-- ════════════════════════════════════════════
-     TANTEADOR — LÓGICA
+     TANTEADOR — LÓGICA COMPLETA Y AMPLIADA
 ════════════════════════════════════════════ -->
 <script>
-const TPRESETS=[5,8,10,15];
-const MQB={pts:[10,15,21,25],dif:[1,2],sts:[1,2,3]};
-const SK='tanteadorEF_v3';
+const TPRESETS=[5,8,10,15,20];
+const MQB={pts:[15,21,25],dif:[1,2],sts:[1,2,3]};
+const SK='tanteadorEF_v4'; // Nueva versión para evitar conflictos
 
 let curTab='v';
 let sA=0,sB=0,stsA=0,stsB=0,curSet=1,stsHist=[],serving='a',gameOver=false;
+// Faltas y Tarjetas para Fútbol/Hándbol/Básquet
+let foulsA=0, foulsB=0;
+let cardsYA=0, cardsYB=0, cardsRA=0, cardsRB=0;
+
 let cfg={points:25,diff:2,sets:3};
 let undoHist=[];
 let tSecs=600,tTarget=600,tRunning=false,tInterval=null;
 
 function tInit(){
-  buildTPresets();buildMQBs();
+  buildTPresets();
+  buildMQBs();
   const ct=tryGet(SK+'_curtab');
   if(ct){curTab=ct;loadTab(ct);renderAll();renderT();}
   else{loadTab('v');renderAll();renderT();}
 }
 
 function goTab(t){
-  saveTab(curTab);saveTimer(curTab);stopT();
+  saveTab(curTab);
+  saveTimer(curTab);
+  stopT();
   curTab=t;
   localStorage.setItem(SK+'_curtab',t);
-  loadTab(t);renderTabBtns();renderAll();renderT();
+  loadTab(t);
+  renderTabBtns();
+  renderAll();
+  renderT();
 }
 
-function renderTabBtns(){
-  ['v','b','l'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===curTab));
+function renderTabBtns() {
+  ['v','b','f','l'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if(el) el.classList.toggle('active', t === curTab);
+  });
 }
 
 function tabKey(t){return SK+'_'+t}
@@ -698,13 +1307,20 @@ function loadTab(t){
     curSet=d.curSet||1;stsHist=d.stsHist||[];
     serving=d.serving||'a';gameOver=d.gameOver||false;
     cfg=d.cfg||{points:25,diff:2,sets:3};
+    foulsA=d.foulsA||0; foulsB=d.foulsB||0;
+    cardsYA=d.cardsYA||0; cardsYB=d.cardsYB||0;
+    cardsRA=d.cardsRA||0; cardsRB=d.cardsRB||0;
   } else {
     sA=0;sB=0;stsA=0;stsB=0;curSet=1;stsHist=[];
     serving='a';gameOver=false;cfg={points:25,diff:2,sets:3};
+    foulsA=0; foulsB=0; cardsYA=0; cardsYB=0; cardsRA=0; cardsRB=0;
+    if(t==='b') cfg.points=999; // Básquet libre por tiempo
+    if(t==='f') cfg.points=99;  // Fútbol libre por tiempo
   }
   undoHist=[];
   document.getElementById('na').value=d&&d.nameA?d.nameA:'Equipo A';
   document.getElementById('nb').value=d&&d.nameB?d.nameB:'Equipo B';
+  
   const td=tryGet(timerKey(t));
   tTarget=td?td.tTarget||600:600;
   tSecs=td?td.tSecs||tTarget:tTarget;
@@ -713,7 +1329,7 @@ function loadTab(t){
 }
 
 function saveTab(t){
-  trySet(tabKey(t),{sA,sB,stsA,stsB,curSet,stsHist,serving,gameOver,cfg,
+  trySet(tabKey(t),{sA,sB,stsA,stsB,curSet,stsHist,serving,gameOver,cfg,foulsA,foulsB,cardsYA,cardsYB,cardsRA,cardsRB,
     nameA:document.getElementById('na').value,
     nameB:document.getElementById('nb').value});
 }
@@ -722,27 +1338,61 @@ function save(){saveTab(curTab)}
 function saveT(){saveTimer(curTab)}
 
 function onName(){save()}
+
 function add(t,v){
-  if(gameOver)return;pushU();
+  if(gameOver)return;
+  pushU();
   if(t==='a')sA+=v;else sB+=v;
   if(curTab==='v'){serving=t;checkSet();}
   save();renderAll();
 }
+
 function sub(t){
-  if(gameOver)return;pushU();
+  if(gameOver)return;
+  pushU();
   if(t==='a'&&sA>0)sA--;else if(t==='b'&&sB>0)sB--;
   save();renderAll();
 }
+
+// Lógica de juego para faltas y tarjetas
+function addFoul(t){
+  pushU();
+  if(t==='a') foulsA++; else foulsB++;
+  save(); renderAll();
+}
+function subFoul(t){
+  pushU();
+  if(t==='a' && foulsA > 0) foulsA--; else if(t==='b' && foulsB > 0) foulsB--;
+  save(); renderAll();
+}
+function addCard(t, color){
+  pushU();
+  if(t==='a') {
+    if(color==='Y') cardsYA++; else cardsRA++;
+  } else {
+    if(color==='Y') cardsYB++; else cardsRB++;
+  }
+  save(); renderAll();
+}
+
 function undo(){
   if(!undoHist.length)return;
   const s=undoHist.pop();
   sA=s.sA;sB=s.sB;stsA=s.stsA;stsB=s.stsB;
   curSet=s.curSet;stsHist=JSON.parse(JSON.stringify(s.stsHist));
   serving=s.serving;gameOver=s.gameOver;
+  foulsA=s.foulsA||0; foulsB=s.foulsB||0;
+  cardsYA=s.cardsYA||0; cardsYB=s.cardsYB||0;
+  cardsRA=s.cardsRA||0; cardsRB=s.cardsRB||0;
   save();renderAll();
 }
+
 function pushU(){
-  undoHist.push({sA,sB,stsA,stsB,curSet,stsHist:JSON.parse(JSON.stringify(stsHist)),serving,gameOver});
+  undoHist.push({
+    sA,sB,stsA,stsB,curSet,
+    stsHist:JSON.parse(JSON.stringify(stsHist)),
+    serving,gameOver,foulsA,foulsB,cardsYA,cardsYB,cardsRA,cardsRB
+  });
   if(undoHist.length>60)undoHist.shift();
 }
 
@@ -764,14 +1414,17 @@ function checkSet(){
 }
 
 function doReset(){
-  if(!confirm('¿Reiniciar el marcador?'))return;
+  if(!confirm('¿Reiniciar el marcador actual?'))return;
   sA=0;sB=0;stsA=0;stsB=0;curSet=1;stsHist=[];
+  foulsA=0;foulsB=0;cardsYA=0;cardsYB=0;cardsRA=0;cardsRB=0;
   serving='a';gameOver=false;undoHist=[];
   document.getElementById('wov').classList.remove('show');
   save();renderAll();
 }
+
 function newGame(){
   sA=0;sB=0;stsA=0;stsB=0;curSet=1;stsHist=[];
+  foulsA=0;foulsB=0;cardsYA=0;cardsYB=0;cardsRA=0;cardsRB=0;
   serving='a';gameOver=false;undoHist=[];
   document.getElementById('wov').classList.remove('show');
   save();renderAll();
@@ -839,9 +1492,15 @@ function nB(){return document.getElementById('nb').value||'Equipo B'}
 
 function buildButtons(){
   clearBtns('a');clearBtns('b');
-  if(curTab==='v'){mkBtns('a',[1]);mkBtns('b',[1]);}
-  else if(curTab==='b'){mkBtns('a',[1,2,3]);mkBtns('b',[1,2,3]);}
-  else{mkBtns('a',[1]);mkBtns('b',[1]);}
+  if(curTab==='v'){
+    mkBtns('a',[1]);mkBtns('b',[1]);
+  } else if(curTab==='b'){
+    mkBtns('a',[1,2,3]);mkBtns('b',[1,2,3]);
+  } else if(curTab==='f') {
+    mkBtns('a',[1]);mkBtns('b',[1]);
+  } else {
+    mkBtns('a',[1]);mkBtns('b',[1]);
+  }
 }
 function clearBtns(t){document.getElementById('btn'+t).innerHTML=''}
 function mkBtns(t,adds){
@@ -861,7 +1520,11 @@ function renderStatus(){
     el.innerHTML='Set '+curSet+' — al '+cfg.points+' pts (dif. '+cfg.diff+') &nbsp;<span class="badge">'+stsA+' – '+stsB+'</span>';
     el.className='status'+(near?' ws':'');
   } else if(curTab==='b'){
-    el.innerHTML='Básquetbol';el.className='status';
+    el.innerHTML='Básquetbol — Faltas acumulativas';
+    el.className='status';
+  } else if(curTab==='f') {
+    el.innerHTML='Fútbol / Hándbol / Deportes de Invasión';
+    el.className='status';
   } else {
     el.innerHTML='Tanteador Libre';el.className='status';
   }
@@ -878,14 +1541,55 @@ function renderHistory(){
   });
 }
 
+function renderExtras() {
+  const exA = document.getElementById('extras-a');
+  const exB = document.getElementById('extras-b');
+  
+  if(curTab === 'b') {
+    exA.style.display = 'flex'; exB.style.display = 'flex';
+    // Estilo básquet: faltas de equipo
+    const isBonusA = foulsA >= 5 ? 'bonus' : '';
+    const isBonusB = foulsB >= 5 ? 'bonus' : '';
+    
+    exA.innerHTML = `
+      <button class="extra-btn foul-btn ${isBonusA}" onclick="addFoul('a')">Faltas: ${foulsA}</button>
+      ${foulsA > 0 ? `<button class="extra-btn" style="padding:4px" onclick="subFoul('a')">-</button>`:''}
+    `;
+    exB.innerHTML = `
+      <button class="extra-btn foul-btn ${isBonusB}" onclick="addFoul('b')">Faltas: ${foulsB}</button>
+      ${foulsB > 0 ? `<button class="extra-btn" style="padding:4px" onclick="subFoul('b')">-</button>`:''}
+    `;
+  } else if (curTab === 'f') {
+    exA.style.display = 'flex'; exB.style.display = 'flex';
+    // Estilo fútbol/hándbol
+    exA.innerHTML = `
+      <button class="extra-btn foul-btn" onclick="addFoul('a')">F: ${foulsA}</button>
+      ${foulsA > 0 ? `<button class="extra-btn" style="padding:4px" onclick="subFoul('a')">-</button>`:''}
+      <button class="extra-btn card-y" onclick="addCard('a', 'Y')">🟨 ${cardsYA}</button>
+      <button class="extra-btn card-r" onclick="addCard('a', 'R')">🟥 ${cardsRA}</button>
+    `;
+    exB.innerHTML = `
+      <button class="extra-btn foul-btn" onclick="addFoul('b')">F: ${foulsB}</button>
+      ${foulsB > 0 ? `<button class="extra-btn" style="padding:4px" onclick="subFoul('b')">-</button>`:''}
+      <button class="extra-btn card-y" onclick="addCard('b', 'Y')">🟨 ${cardsYB}</button>
+      <button class="extra-btn card-r" onclick="addCard('b', 'R')">🟥 ${cardsRB}</button>
+    `;
+  } else {
+    exA.style.display = 'none'; exB.style.display = 'none';
+  }
+}
+
 function renderAll(){
   document.getElementById('sca').textContent=sA;
   document.getElementById('scb').textContent=sB;
   document.getElementById('srv-a').classList.toggle('on',curTab==='v'&&serving==='a');
   document.getElementById('srv-b').classList.toggle('on',curTab==='v'&&serving==='b');
   document.getElementById('cfgbtn').style.display=curTab==='v'?'':'none';
-  document.getElementById('tblock').style.display=(curTab==='b'||curTab==='l')?'':'none';
-  buildButtons();renderStatus();renderHistory();
+  document.getElementById('tblock').style.display=(curTab==='b'||curTab==='l' || curTab==='f')?'':'none';
+  buildButtons();
+  renderStatus();
+  renderHistory();
+  renderExtras();
 }
 
 function showWin(name,sub){
@@ -896,10 +1600,10 @@ function showWin(name,sub){
 </script>
 
 <!-- ════════════════════════════════════════════
-     TORNEO FÁCIL — LÓGICA
+     TORNEO FÁCIL — LÓGICA DE GESTIÓN
 ════════════════════════════════════════════ -->
 <script>
-const TF_SK = 'torneofacil_v1';
+const TF_SK = 'torneofacil_v4'; // Versión para soporte de Fair Play
 const TF_FORMATS = {
   'todos':       { label: 'Todos contra todos', min: 2, max: 12 },
   'liguilla':    { label: 'Dos fases + final',   min: 4, max: 12 },
@@ -910,6 +1614,7 @@ let tfTeams = ['','','',''];
 let tfSelectedFormat = '';
 let tfFixture = null;
 let tfScores = {};
+let tfFairPlay = {}; // Guardará { matchKey: { a: 1-5, b: 1-5 } }
 let tfShowStandings = false;
 let tfShowReport = false;
 let tfTorneoName = '';
@@ -940,35 +1645,52 @@ function tfScheduleSave() {
   tfSetSaveBar(false, 'Guardando...');
   tfSaveTimeout = setTimeout(tfSaveState, 600);
 }
+
 function tfSaveState() {
   try {
     tfTorneoName = (document.getElementById('tf-torneo-name')||{}).value || tfTorneoName;
-    localStorage.setItem(TF_SK, JSON.stringify({ teams:tfTeams, selectedFormat:tfSelectedFormat, fixture:tfFixture, scores:tfScores, showStandings:tfShowStandings, showReport:tfShowReport, torneoName:tfTorneoName }));
+    localStorage.setItem(TF_SK, JSON.stringify({ 
+      teams:tfTeams, 
+      selectedFormat:tfSelectedFormat, 
+      fixture:tfFixture, 
+      scores:tfScores, 
+      fairPlay: tfFairPlay,
+      showStandings:tfShowStandings, 
+      showReport:tfShowReport, 
+      torneoName:tfTorneoName 
+    }));
     tfSetSaveBar(true, 'Guardado automáticamente');
   } catch(e) { tfSetSaveBar(false, 'Error al guardar'); }
 }
+
 function tfSetSaveBar(ok, msg) {
   document.getElementById('tf-save-dot').className = 'tf-save-dot' + (ok ? '' : ' warn');
   document.getElementById('tf-save-label').textContent = msg;
 }
+
 function tfLoadState() {
   try {
     const raw = localStorage.getItem(TF_SK);
     if (!raw) return false;
     const s = JSON.parse(raw);
     if (!s.fixture) return false;
-    tfTeams = s.teams || tfTeams; tfSelectedFormat = s.selectedFormat || '';
-    tfFixture = s.fixture; tfScores = s.scores || {};
-    tfShowStandings = s.showStandings || false; tfShowReport = s.showReport || false;
+    tfTeams = s.teams || tfTeams; 
+    tfSelectedFormat = s.selectedFormat || '';
+    tfFixture = s.fixture; 
+    tfScores = s.scores || {};
+    tfFairPlay = s.fairPlay || {};
+    tfShowStandings = s.showStandings || false; 
+    tfShowReport = s.showReport || false;
     tfTorneoName = s.torneoName || '';
     return true;
   } catch(e) { return false; }
 }
+
 function tfClearAndReset() {
   if (!confirm('¿Seguro que querés terminar este campeonato y empezar uno nuevo? Se borrarán todos los datos.')) return;
   localStorage.removeItem(TF_SK);
   tfTeams = ['','','','']; tfSelectedFormat = ''; tfFixture = null;
-  tfScores = {}; tfShowStandings = false; tfShowReport = false; tfTorneoName = '';
+  tfScores = {}; tfFairPlay = {}; tfShowStandings = false; tfShowReport = false; tfTorneoName = '';
   document.getElementById('tf-restored').style.display = 'none';
   document.getElementById('tf-setup-area').style.display = '';
   document.getElementById('tf-fixture-area').innerHTML = '';
@@ -983,11 +1705,7 @@ function tfShowValidationMsg(msg) {
   el.textContent = msg; el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3500);
 }
-function tfValidateScore(val) {
-  if (val === '' || val === null || val === undefined) return true;
-  const n = Number(val);
-  return Number.isInteger(n) && n >= 0 && n <= 99;
-}
+
 function tfHandleScoreInput(el, key, side) {
   const val = el.value.trim();
   if (val === '') { tfSetScore(key, side, ''); el.classList.remove('input-error'); return; }
@@ -1002,6 +1720,7 @@ function tfShuffle(arr) {
   return a;
 }
 
+// Renderización de equipos
 function tfRenderTeams() {
   document.getElementById('tf-teams-list').innerHTML = tfTeams.map((t, i) => `
     <div class="tf-team-row">
@@ -1025,9 +1744,9 @@ function tfUpdateFormatDesc() {
   if (!tfSelectedFormat) { el.style.display='none'; return; }
   const n = tfGetTeams().length || tfTeams.length;
   const d = {
-    'todos':       `Cada equipo juega contra todos. Con ${n} equipos → <strong>${n*(n-1)/2} partidos</strong>. Se clasifica por puntos (victoria 3 pts, empate 1 pt).`,
-    'liguilla':    `Los equipos se dividen en dos grupos al azar. El líder de cada grupo juega la final.`,
-    'eliminacion': `Cruces directos. Quien pierde queda eliminado. Con ${n} equipos → <strong>${n-1} partidos</strong> hasta el campeón.`,
+    'todos':       `Cada equipo juega contra todos. Con ${n} equipos → <strong>${n*(n-1)/2} partidos</strong>. Evaluación paralela de comportamiento.`,
+    'liguilla':    `Los equipos se dividen en dos grupos al azar. El líder deportivo de cada grupo juega la final nacional.`,
+    'eliminacion': `Cruces directos con planilla de comportamiento y evaluación formativa por encuentro. Con ${n} equipos → <strong>${n-1} partidos</strong>.`,
   };
   el.innerHTML = d[tfSelectedFormat]||''; el.style.display='block';
 }
@@ -1060,7 +1779,8 @@ function tfGenerate() {
   const uniq = new Set(filled.map(t=>t.trim().toLowerCase()));
   if (uniq.size < filled.length) return tfShowValidationMsg('Hay equipos con el mismo nombre.');
   tfTorneoName = document.getElementById('tf-torneo-name').value;
-  tfScores={}; tfShowStandings=false; tfShowReport=false;
+  tfScores={}; tfFairPlay={}; tfShowStandings=false; tfShowReport=false;
+  
   if(tfSelectedFormat==='todos')       tfFixture={type:'todos',rounds:tfGenerateRoundRobin(ts),teams:ts};
   else if(tfSelectedFormat==='liguilla') tfFixture={type:'liguilla',data:tfGenerateLiguilla(ts),teams:ts};
   else                                    tfFixture={type:'eliminacion',rounds:tfGenerateElim(ts),teams:ts};
@@ -1076,47 +1796,159 @@ function tfSetScore(key,side,val) {
   if(tfShowStandings||tfShowReport) tfRenderFixture();
 }
 
-function tfMatchHtml(a,b,key,label) {
-  const sc=tfScores[key]||{a:'',b:''};
-  return `<div class="tf-match-card">
-    <span class="tf-match-num">${label}</span>
-    <span class="tf-team-a">${a}</span>
-    <span class="tf-vs">vs</span>
-    <span class="tf-team-b">${b}</span>
-    <div class="tf-score-wrap">
-      <input type="number" class="tf-score" min="0" max="99" value="${sc.a}" placeholder="-" oninput="tfHandleScoreInput(this,'${key}','a')">
-      <span class="tf-score-sep">:</span>
-      <input type="number" class="tf-score" min="0" max="99" value="${sc.b}" placeholder="-" oninput="tfHandleScoreInput(this,'${key}','b')">
+function tfSetFairPlay(key, side, stars) {
+  if(!tfFairPlay[key]) tfFairPlay[key] = {a: 5, b: 5};
+  tfFairPlay[key][side] = stars;
+  tfScheduleSave();
+  tfRenderFixture();
+}
+
+function tfMatchHtml(a, b, key, label) {
+  const sc = tfScores[key] || {a:'', b:''};
+  const fp = tfFairPlay[key] || {a: 5, b: 5};
+  
+  // Render de estrellas para Fair Play (Equipo A y B)
+  const starsA = [1,2,3,4,5].map(num => `
+    <span class="tf-star ${num <= fp.a ? 'active' : ''}" onclick="tfSetFairPlay('${key}','a', ${num})">★</span>
+  `).join('');
+  
+  const starsB = [1,2,3,4,5].map(num => `
+    <span class="tf-star ${num <= fp.b ? 'active' : ''}" onclick="tfSetFairPlay('${key}','b', ${num})">★</span>
+  `).join('');
+
+  return `
+  <div class="tf-match-card-wrapper">
+    <div class="tf-match-card">
+      <span class="tf-match-num">${label}</span>
+      <span class="tf-team-a">${a}</span>
+      <span class="tf-vs">vs</span>
+      <span class="tf-team-b">${b}</span>
+      <div class="tf-score-wrap">
+        <input type="number" class="tf-score" min="0" max="99" value="${sc.a}" placeholder="-" oninput="tfHandleScoreInput(this,'${key}','a')">
+        <span class="tf-score-sep">:</span>
+        <input type="number" class="tf-score" min="0" max="99" value="${sc.b}" placeholder="-" oninput="tfHandleScoreInput(this,'${key}','b')">
+      </div>
+    </div>
+    <div class="tf-fp-eval">
+      <div class="tf-fp-label"><span>🤝 Fair Play ${a}:</span> <div class="tf-stars-container">${starsA}</div></div>
+      <div class="tf-fp-label"><span>🤝 Fair Play ${b}:</span> <div class="tf-stars-container">${starsB}</div></div>
     </div>
   </div>`;
 }
 
-function tfCalcStandings(ts,rounds,prefix) {
-  const pts={};
-  ts.forEach(t=>pts[t]={pts:0,j:0,g:0,e:0,p:0,gf:0,gc:0});
-  rounds.forEach((round,r)=>round.forEach((m,i)=>{
-    const sc=tfScores[`${prefix}${r}_${i}`];
-    if(!sc||sc.a===''||sc.b==='') return;
-    const ga=parseInt(sc.a),gb=parseInt(sc.b);
-    if(isNaN(ga)||isNaN(gb)) return;
-    pts[m.a].j++;pts[m.b].j++;
-    pts[m.a].gf+=ga;pts[m.a].gc+=gb;
-    pts[m.b].gf+=gb;pts[m.b].gc+=ga;
-    if(ga>gb){pts[m.a].pts+=3;pts[m.a].g++;pts[m.b].p++;}
-    else if(ga<gb){pts[m.b].pts+=3;pts[m.b].g++;pts[m.a].p++;}
-    else{pts[m.a].pts++;pts[m.b].pts++;pts[m.a].e++;pts[m.b].e++;}
+// Posiciones deportivas
+function tfCalcStandings(ts, rounds, prefix) {
+  const pts = {};
+  ts.forEach(t => pts[t] = { pts: 0, j: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, fpScoreSum: 0, fpMatchesCount: 0 });
+  
+  rounds.forEach((round, r) => round.forEach((m, i) => {
+    const key = `${prefix}${r}_${i}`;
+    const sc = tfScores[key];
+    const fp = tfFairPlay[key] || { a: 5, b: 5 };
+    
+    if(!sc || sc.a==='' || sc.b==='') return;
+    const ga = parseInt(sc.a), gb = parseInt(sc.b);
+    if(isNaN(ga) || isNaN(gb)) return;
+    
+    pts[m.a].j++; pts[m.b].j++;
+    pts[m.a].gf += ga; pts[m.a].gc += gb;
+    pts[m.b].gf += gb; pts[m.b].gc += ga;
+    
+    // Suma de Fair Play
+    pts[m.a].fpScoreSum += (fp.a || 5);
+    pts[m.a].fpMatchesCount++;
+    pts[m.b].fpScoreSum += (fp.b || 5);
+    pts[m.b].fpMatchesCount++;
+    
+    if(ga > gb){ pts[m.a].pts += 3; pts[m.a].g++; pts[m.b].p++; }
+    else if(ga < gb){ pts[m.b].pts += 3; pts[m.b].g++; pts[m.a].p++; }
+    else { pts[m.a].pts++; pts[m.b].pts++; pts[m.a].e++; pts[m.b].e++; }
   }));
-  return ts.slice().sort((a,b)=>pts[b].pts!==pts[a].pts?pts[b].pts-pts[a].pts:(pts[b].gf-pts[b].gc)-(pts[a].gf-pts[a].gc)).map(t=>({name:t,...pts[t]}));
+  
+  return ts.slice().sort((a,b) => {
+    if(pts[b].pts !== pts[a].pts) return pts[b].pts - pts[a].pts;
+    return (pts[b].gf - pts[b].gc) - (pts[a].gf - pts[a].gc);
+  }).map(t => {
+    const avgFP = pts[t].fpMatchesCount > 0 ? (pts[t].fpScoreSum / pts[t].fpMatchesCount).toFixed(1) : "5.0";
+    return { name: t, ...pts[t], fpAvg: avgFP };
+  });
 }
 
-function tfStandingsTableHtml(ts,rounds,prefix) {
-  const sorted=tfCalcStandings(ts,rounds,prefix);
-  let h='<div class="tf-table-wrap"><table><thead><tr><th>#</th><th>Equipo</th><th class="tf-td-c">PJ</th><th class="tf-td-c">G</th><th class="tf-td-c">E</th><th class="tf-td-c">P</th><th class="tf-td-c">GF</th><th class="tf-td-c">GC</th><th class="tf-td-c">Pts</th></tr></thead><tbody>';
-  sorted.forEach((p,i)=>{ h+=`<tr ${i===0?'class="leader"':''}><td class="tf-td-c">${i+1}</td><td>${p.name}</td><td class="tf-td-c">${p.j}</td><td class="tf-td-c">${p.g}</td><td class="tf-td-c">${p.e}</td><td class="tf-td-c">${p.p}</td><td class="tf-td-c">${p.gf}</td><td class="tf-td-c">${p.gc}</td><td class="tf-td-c"><strong>${p.pts}</strong></td></tr>`; });
-  return h+'</tbody></table></div>';
+// Tabla de posiciones tradicional
+function tfStandingsTableHtml(ts, rounds, prefix) {
+  const sorted = tfCalcStandings(ts, rounds, prefix);
+  let h = `
+  <div class="tf-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Equipo</th>
+          <th class="tf-td-c">PJ</th>
+          <th class="tf-td-c">G</th>
+          <th class="tf-td-c">E</th>
+          <th class="tf-td-c">P</th>
+          <th class="tf-td-c">GF</th>
+          <th class="tf-td-c">GC</th>
+          <th class="tf-td-c">F.Play</th>
+          <th class="tf-td-c">Pts</th>
+        </tr>
+      </thead>
+      <tbody>`;
+  sorted.forEach((p, i) => { 
+    h += `
+    <tr ${i===0?'class="leader"':''}>
+      <td class="tf-td-c">${i+1}</td>
+      <td><strong>${p.name}</strong></td>
+      <td class="tf-td-c">${p.j}</td>
+      <td class="tf-td-c">${p.g}</td>
+      <td class="tf-td-c">${p.e}</td>
+      <td class="tf-td-c">${p.p}</td>
+      <td class="tf-td-c">${p.gf}</td>
+      <td class="tf-td-c">${p.gc}</td>
+      <td class="tf-td-c" style="color: #ffb800">★ ${p.fpAvg}</td>
+      <td class="tf-td-c"><strong>${p.pts}</strong></td>
+    </tr>`; 
+  });
+  return h + '</tbody></table></div>';
 }
 
-function tfGetLider(ts,rounds,prefix) {
+// Tabla de Fair Play
+function tfFairPlayTableHtml(ts, rounds, prefix) {
+  const sorted = tfCalcStandings(ts, rounds, prefix)
+                 .sort((a,b) => parseFloat(b.fpAvg) - parseFloat(a.fpAvg));
+                 
+  let h = `
+  <div style="margin-top:1.5rem"></div>
+  <span class="tf-phase-badge" style="background: rgba(210,153,34,0.12); color:#ffb800; border: 1px solid var(--warn);">
+    🏆 Copa Juego Limpio (Fair Play)
+  </span>
+  <div class="tf-table-wrap" style="border-color: var(--warn)">
+    <table>
+      <thead>
+        <tr style="background: rgba(210,153,34,0.05)">
+          <th>Pos</th>
+          <th>Equipo</th>
+          <th class="tf-td-c">Partidos Evaluados</th>
+          <th class="tf-td-c">Promedio de Conducta</th>
+        </tr>
+      </thead>
+      <tbody>`;
+  sorted.forEach((p, i) => { 
+    h += `
+    <tr ${i===0?'style="background: rgba(255,184,0,0.06)"':''}>
+      <td class="tf-td-c">${i+1}</td>
+      <td><strong>${p.name}</strong></td>
+      <td class="tf-td-c">${p.fpMatchesCount}</td>
+      <td class="tf-td-c" style="font-weight:bold; color: #ffb800">
+        ★ ${p.fpAvg} / 5.0
+      </td>
+    </tr>`; 
+  });
+  return h + '</tbody></table></div>';
+}
+
+function tfGetLider(ts, rounds, prefix) {
   const hayResultados = rounds.some((round,r) =>
     round.some((m,i) => { const sc = tfScores[`${prefix}${r}_${i}`]; return sc && sc.a !== '' && sc.b !== ''; })
   );
@@ -1125,71 +1957,124 @@ function tfGetLider(ts,rounds,prefix) {
 }
 
 function tfBuildReport() {
-  const fecha=new Date().toLocaleDateString('es-UY',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const nombre=tfTorneoName||'Campeonato';
-  let txt=`🏆 ${nombre}\n📅 ${fecha}\n👥 Equipos: ${tfFixture.teams.join(', ')}\n`;
-  txt+=`📋 Formato: ${{todos:'Todos contra todos',liguilla:'Dos fases + final',eliminacion:'Eliminación directa'}[tfFixture.type]}\n`;
-  txt+='\n── RESULTADOS ──\n';
+  const fecha = new Date().toLocaleDateString('es-UY',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const nombre = tfTorneoName || 'Campeonato';
+  let txt = `=========================================\n`;
+  txt += `🏆 INFORME DE TORNEO: ${nombre.toUpperCase()}\n`;
+  txt += `📅 Fecha de Reporte: ${fecha}\n`;
+  txt += `👥 Equipos participantes: ${tfFixture.teams.join(', ')}\n`;
+  txt += `📋 Formato: ${{todos:'Todos contra todos',liguilla:'Dos fases + final',eliminacion:'Eliminación directa'}[tfFixture.type]}\n`;
+  txt += `=========================================\n\n`;
+  
+  txt += `── RESULTADOS DE LOS ENCUENTROS ──\n`;
   if(tfFixture.type==='todos'){
-    tfFixture.rounds.forEach((round,r)=>{
-      txt+=`\nFecha ${r+1}\n`;
-      round.forEach((m,i)=>{const sc=tfScores[`r${r}_${i}`]||{};txt+=`  ${m.a} ${sc.a!==''&&sc.a!==undefined?sc.a:'-'} : ${sc.b!==''&&sc.b!==undefined?sc.b:'-'} ${m.b}\n`;});
+    tfFixture.rounds.forEach((round,r) => {
+      txt += `\n[Fecha ${r+1}]\n`;
+      round.forEach((m,i) => {
+        const sc = tfScores[`r${r}_${i}`] || {};
+        const fp = tfFairPlay[`r${r}_${i}`] || {a:5, b:5};
+        txt += `  ${m.a} (${sc.a!==''&&sc.a!==undefined?sc.a:'-'}) vs (${sc.b!==''&&sc.b!==undefined?sc.b:'-'}) ${m.b}\n`;
+        txt += `  └─ Fair Play 🤝: ${m.a} (★ ${fp.a}/5) | ${m.b} (★ ${fp.b}/5)\n\n`;
+      });
     });
-    txt+='\n── TABLA FINAL ──\n';
-    tfCalcStandings(tfFixture.teams,tfFixture.rounds,'r').forEach((p,i)=>{ txt+=`  ${i+1}. ${p.name} — ${p.pts} pts (${p.g}G ${p.e}E ${p.p}P)\n`; });
-  } else if(tfFixture.type==='liguilla'){
-    const d=tfFixture.data;
-    txt+=`\nGrupo A: ${d.g1teams.join(', ')}\n`;
-    d.group1.forEach((round,r)=>{txt+=`  Fecha ${r+1}\n`;round.forEach((m,i)=>{const sc=tfScores[`g1_${r}_${i}`]||{};txt+=`    ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;});});
-    txt+=`\nGrupo B: ${d.g2teams.join(', ')}\n`;
-    d.group2.forEach((round,r)=>{txt+=`  Fecha ${r+1}\n`;round.forEach((m,i)=>{const sc=tfScores[`g2_${r}_${i}`]||{};txt+=`    ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;});});
-    const lA=tfGetLider(d.g1teams,d.group1,'g1');const lB=tfGetLider(d.g2teams,d.group2,'g2');
+    txt += `\n── CLASIFICACIÓN DEPORTIVA FINAL ──\n`;
+    tfCalcStandings(tfFixture.teams,tfFixture.rounds,'r').forEach((p,i)=>{ 
+      txt += `  ${i+1}. ${p.name.padEnd(16)} — ${p.pts} pts (PJ:${p.j} | G:${p.g} | E:${p.e} | P:${p.p} | GF:${p.gf} | GC:${p.gc})\n`; 
+    });
+    
+    txt += `\n── VALORACIÓN Y DESEMPEÑO FAIR PLAY ──\n`;
+    const fpSorted = tfCalcStandings(tfFixture.teams,tfFixture.rounds,'r').sort((a,b)=>parseFloat(b.fpAvg)-parseFloat(a.fpAvg));
+    fpSorted.forEach((p,i) => {
+      txt += `  ${i+1}. ${p.name.padEnd(16)} — Promedio Conducta: ★ ${p.fpAvg} / 5.0\n`;
+    });
+    
+  } else if(tfFixture.type==='liguilla') {
+    const d = tfFixture.data;
+    txt += `\n[Grupo A]: ${d.g1teams.join(', ')}\n`;
+    d.group1.forEach((round,r)=>{
+      txt += `  Fecha ${r+1}\n`;
+      round.forEach((m,i)=>{
+        const sc=tfScores[`g1_${r}_${i}`]||{};
+        txt += `    ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;
+      });
+    });
+    txt += `\n[Grupo B]: ${d.g2teams.join(', ')}\n`;
+    d.group2.forEach((round,r)=>{
+      txt += `  Fecha ${r+1}\n`;
+      round.forEach((m,i)=>{
+        const sc=tfScores[`g2_${r}_${i}`]||{};
+        txt += `    ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;
+      });
+    });
+    const lA=tfGetLider(d.g1teams,d.group1,'g1');
+    const lB=tfGetLider(d.g2teams,d.group2,'g2');
     const fsc=tfScores['final_0']||{};
-    txt+=`\nFinal: ${lA} ${fsc.a||'-'} : ${fsc.b||'-'} ${lB}\n`;
-    if(fsc.a!==''&&fsc.b!==''){const ga=parseInt(fsc.a),gb=parseInt(fsc.b);if(!isNaN(ga)&&!isNaN(gb)&&ga!==gb)txt+=`\n🥇 Campeón: ${ga>gb?lA:lB}\n`;}
+    txt += `\n🏆 Gran Final del Torneo:\n`;
+    txt += `  ${lA} ${fsc.a||'-'} : ${fsc.b||'-'} ${lB}\n`;
   } else {
     tfFixture.rounds.forEach((round,r)=>{
       const names=['Octavos','Cuartos de final','Semifinal','Final'];
       const name=names[Math.max(0,names.length-tfFixture.rounds.length+r)]||`Ronda ${r+1}`;
-      txt+=`\n${name}\n`;
-      round.forEach((m,i)=>{const sc=tfScores[`elim_${r}_${i}`]||{};txt+=`  ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;});
+      txt += `\n[${name}]\n`;
+      round.forEach((m,i)=>{
+        const sc=tfScores[`elim_${r}_${i}`]||{};
+        txt += `  ${m.a} ${sc.a||'-'} vs ${sc.b||'-'} ${m.b}\n`;
+      });
     });
-    const lr=tfFixture.rounds[tfFixture.rounds.length-1];
-    if(lr&&lr.length===1){const fsc=tfScores[`elim_${tfFixture.rounds.length-1}_0`]||{};if(fsc.a!==''&&fsc.b!==''){const ga=parseInt(fsc.a),gb=parseInt(fsc.b);if(!isNaN(ga)&&!isNaN(gb)&&ga!==gb)txt+=`\n🥇 Campeón: ${ga>gb?lr[0].a:lr[0].b}\n`;}}
   }
+  
+  txt += `\n=========================================\n`;
+  txt += `Generado automáticamente por "Juego Limpio".\n`;
+  txt += `Educación Física de Calidad e Innovadora. Uruguay.`;
   return txt;
 }
 
 function tfCopyReport() {
-  const txt=tfBuildReport();
-  navigator.clipboard.writeText(txt).then(()=>{
-    const ok=document.getElementById('tf-copy-ok');
-    if(ok){ok.style.display='inline-flex';setTimeout(()=>ok.style.display='none',2500);}
-  }).catch(()=>{
-    const el=document.getElementById('tf-report-text');
-    if(el){const r=document.createRange();r.selectNode(el);window.getSelection().removeAllRanges();window.getSelection().addRange(r);}
-  });
+  const txt = tfBuildReport();
+  const tempTextArea = document.createElement("textarea");
+  tempTextArea.value = txt;
+  document.body.appendChild(tempTextArea);
+  tempTextArea.select();
+  try {
+    document.execCommand("copy");
+    const ok = document.getElementById('tf-copy-ok');
+    if(ok) { ok.style.display = 'inline-flex'; setTimeout(()=>ok.style.display='none', 2500); }
+  } catch (err) {
+    console.error("No se pudo copiar directamente", err);
+  }
+  document.body.removeChild(tempTextArea);
 }
 
 function tfToggleStandings(){tfShowStandings=!tfShowStandings;tfScheduleSave();tfRenderFixture();}
 function tfToggleReport(){tfShowReport=!tfShowReport;tfScheduleSave();tfRenderFixture();}
 
 function tfFooterBtns() {
-  let h='<div class="tf-action-row">';
-  if(tfFixture.type==='todos') h+=`<button class="tf-sec-btn" onclick="tfToggleStandings()"><i class="ti ti-list-numbers"></i> ${tfShowStandings?'Ocultar tabla':'Tabla de posiciones'}</button>`;
-  h+=`<button class="tf-report-btn" onclick="tfToggleReport()"><i class="ti ti-file-text"></i> ${tfShowReport?'Ocultar informe':'Generar informe'}</button>`;
-  h+='</div>';
-  if(tfShowStandings&&tfFixture.type==='todos') h+=tfStandingsTableHtml(tfFixture.teams,tfFixture.rounds,'r');
-  if(tfShowReport){
-    h+=`<div class="tf-report-box" id="tf-report-text">${tfBuildReport()}</div>`;
-    h+=`<div style="display:flex;gap:8px;margin-top:8px;align-items:center;"><button class="tf-report-btn" onclick="tfCopyReport()"><i class="ti ti-copy"></i> Copiar informe</button><span id="tf-copy-ok" class="tf-copy-ok"><i class="ti ti-check"></i> ¡Copiado!</span></div>`;
+  let h = '<div class="tf-action-row">';
+  if(tfFixture.type==='todos') {
+    h += `<button class="tf-sec-btn" onclick="tfToggleStandings()"><i class="ti ti-list-numbers"></i> ${tfShowStandings?'Ocultar Tablas':'Ver Tablas'}</button>`;
   }
-  h+=`<br><button class="tf-reset-btn" onclick="tfClearAndReset()"><i class="ti ti-trash"></i> Terminar campeonato y limpiar</button>`;
+  h += `<button class="tf-report-btn" onclick="tfToggleReport()"><i class="ti ti-file-text"></i> ${tfShowReport?'Ocultar Informe':'Generar Informe'}</button>`;
+  h += '</div>';
+  
+  if(tfShowStandings && tfFixture.type==='todos') {
+    h += tfStandingsTableHtml(tfFixture.teams, tfFixture.rounds, 'r');
+    h += tfFairPlayTableHtml(tfFixture.teams, tfFixture.rounds, 'r');
+  }
+  
+  if(tfShowReport){
+    h += `<div class="tf-report-box" id="tf-report-text">${tfBuildReport()}</div>`;
+    h += `
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+      <button class="tf-report-btn" onclick="tfCopyReport()"><i class="ti ti-copy"></i> Copiar Informe</button>
+      <span id="tf-copy-ok" class="tf-copy-ok"><i class="ti ti-check"></i> ¡Copiado con éxito!</span>
+    </div>`;
+  }
+  h += `<br><button class="tf-reset-btn" onclick="tfClearAndReset()"><i class="ti ti-trash"></i> Finalizar campeonato y borrar datos</button>`;
   return h;
 }
 
 function tfRenderFixture() {
-  const area=document.getElementById('tf-fixture-area');
+  const area = document.getElementById('tf-fixture-area');
   if(!tfFixture){area.innerHTML='';return;}
   if(tfFixture.type==='todos') tfRenderTodos(area);
   else if(tfFixture.type==='liguilla') tfRenderLiguilla(area);
@@ -1197,53 +2082,95 @@ function tfRenderFixture() {
 }
 
 function tfRenderTodos(area) {
-  let h=`<p class="tf-section-header">${tfTorneoName||'Campeonato'}</p>`;
-  tfFixture.rounds.forEach((round,r)=>{h+=`<p class="tf-section-title">Fecha ${r+1}</p>`;round.forEach((m,i)=>h+=tfMatchHtml(m.a,m.b,`r${r}_${i}`,`${r+1}.${i+1}`));});
-  h+=tfFooterBtns(); area.innerHTML=h;
+  let h = `<p class="tf-section-header">${tfTorneoName||'Campeonato Escolar'}</p>`;
+  tfFixture.rounds.forEach((round,r) => {
+    h += `<p class="tf-section-title">Fecha ${r+1}</p>`;
+    round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `r${r}_${i}`, `${r+1}.${i+1}`));
+  });
+  h += tfFooterBtns(); 
+  area.innerHTML = h;
 }
 
 function tfRenderLiguilla(area) {
-  const d=tfFixture.data;
-  let h=`<p class="tf-section-header">${tfTorneoName||'Campeonato'}</p>`;
-  h+=`<span class="tf-phase-badge">Fase 1 — Grupo A (${d.g1teams.join(', ')})</span>`;
-  d.group1.forEach((round,r)=>{h+=`<p class="tf-section-title">Fecha ${r+1}</p>`;round.forEach((m,i)=>h+=tfMatchHtml(m.a,m.b,`g1_${r}_${i}`,`A${r+1}.${i+1}`));});
-  h+=`<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge">Fase 1 — Grupo B (${d.g2teams.join(', ')})</span>`;
-  d.group2.forEach((round,r)=>{h+=`<p class="tf-section-title">Fecha ${r+1}</p>`;round.forEach((m,i)=>h+=tfMatchHtml(m.a,m.b,`g2_${r}_${i}`,`B${r+1}.${i+1}`));});
-  const lA=tfGetLider(d.g1teams,d.group1,'g1');const lB=tfGetLider(d.g2teams,d.group2,'g2');
-  h+=`<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge final">Final</span>`;
-  h+=tfMatchHtml(lA,lB,'final_0','Final');
-  const fsc=tfScores['final_0'];
-  if(fsc&&fsc.a!==''&&fsc.b!==''){const ga=parseInt(fsc.a),gb=parseInt(fsc.b);if(!isNaN(ga)&&!isNaN(gb)&&ga!==gb)h+=`<div class="tf-winner-banner"><i class="ti ti-trophy"></i> Campeón: ${ga>gb?lA:lB}</div>`;}
-  h+=tfFooterBtns(); area.innerHTML=h;
+  const d = tfFixture.data;
+  let h = `<p class="tf-section-header">${tfTorneoName||'Campeonato Escolar'}</p>`;
+  h += `<span class="tf-phase-badge">Fase 1 — Grupo A (${d.g1teams.join(', ')})</span>`;
+  d.group1.forEach((round, r) => {
+    h += `<p class="tf-section-title">Fecha ${r+1}</p>`;
+    round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `g1_${r}_${i}`, `A${r+1}.${i+1}`));
+  });
+  h += `<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge">Fase 1 — Grupo B (${d.g2teams.join(', ')})</span>`;
+  d.group2.forEach((round, r) => {
+    h += `<p class="tf-section-title">Fecha ${r+1}</p>`;
+    round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `g2_${r}_${i}`, `B${r+1}.${i+1}`));
+  });
+  
+  const lA = tfGetLider(d.g1teams, d.group1, 'g1');
+  const lB = tfGetLider(d.g2teams, d.group2, 'g2');
+  h += `<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge final">Gran Final</span>`;
+  h += tfMatchHtml(lA, lB, 'final_0', 'Final');
+  const fsc = tfScores['final_0'];
+  if(fsc && fsc.a!=='' && fsc.b!=='') {
+    const ga = parseInt(fsc.a), gb = parseInt(fsc.b);
+    if(!isNaN(ga) && !isNaN(gb) && ga!==gb) {
+      h += `<div class="tf-winner-banner"><i class="ti ti-trophy"></i> Campeón Deportivo: ${ga>gb?lA:lB}</div>`;
+    }
+  }
+  h += tfFooterBtns(); 
+  area.innerHTML = h;
 }
 
 function tfRenderElim(area) {
-  const names=['Octavos','Cuartos de final','Semifinal','Final'];
-  let h=`<p class="tf-section-header">${tfTorneoName||'Campeonato'}</p>`;
-  tfFixture.rounds.forEach((round,r)=>{
-    const name=names[Math.max(0,names.length-tfFixture.rounds.length+r)]||`Ronda ${r+1}`;
-    h+=`<span class="tf-phase-badge">${name}</span>`;
-    round.forEach((m,i)=>h+=tfMatchHtml(m.a,m.b,`elim_${r}_${i}`,`${i+1}`));
-    h+='<div style="margin-bottom:1rem;"></div>';
+  const names = ['Octavos', 'Cuartos de final', 'Semifinal', 'Final'];
+  let h = `<p class="tf-section-header">${tfTorneoName||'Campeonato'}</p>`;
+  tfFixture.rounds.forEach((round, r) => {
+    const name = names[Math.max(0, names.length - tfFixture.rounds.length + r)] || `Ronda ${r+1}`;
+    h += `<span class="tf-phase-badge">${name}</span>`;
+    round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `elim_${r}_${i}`, `${i+1}`));
+    h += '<div style="margin-bottom:1rem;"></div>';
   });
-  const lr=tfFixture.rounds[tfFixture.rounds.length-1];
-  if(lr&&lr.length===1){const fsc=tfScores[`elim_${tfFixture.rounds.length-1}_0`];if(fsc&&fsc.a!==''&&fsc.b!==''){const ga=parseInt(fsc.a),gb=parseInt(fsc.b);if(!isNaN(ga)&&!isNaN(gb)&&ga!==gb)h+=`<div class="tf-winner-banner"><i class="ti ti-trophy"></i> Campeón: ${ga>gb?lr[0].a:lr[0].b}</div>`;}}
-  h+=tfFooterBtns(); area.innerHTML=h;
+  const lr = tfFixture.rounds[tfFixture.rounds.length-1];
+  if(lr && lr.length === 1) {
+    const fsc = tfScores[`elim_${tfFixture.rounds.length-1}_0`];
+    if(fsc && fsc.a!=='' && fsc.b!=='') {
+      const ga = parseInt(fsc.a), gb = parseInt(fsc.b);
+      if(!isNaN(ga) && !isNaN(gb) && ga!==gb) {
+        h += `<div class="tf-winner-banner"><i class="ti ti-trophy"></i> Campeón Directo: ${ga>gb?lr[0].a:lr[0].b}</div>`;
+      }
+    }
+  }
+  h += tfFooterBtns(); 
+  area.innerHTML = h;
 }
 
 function tfUpdateElimWinners() {
-  tfFixture.rounds.forEach((round,r)=>{
+  tfFixture.rounds.forEach((round, r) => {
     if(r===0) return;
-    round.forEach((m,i)=>{
-      const pr=tfFixture.rounds[r-1];
-      const pA=pr[i*2],pB=pr[i*2+1];
-      if(pA){const sc=tfScores[`elim_${r-1}_${i*2}`];if(sc&&sc.a!==''&&sc.b!==''){const ga=parseInt(sc.a),gb=parseInt(sc.b);if(!isNaN(ga)&&!isNaN(gb))m.a=ga>=gb?pA.a:pA.b;}}
-      if(pB){const sc=tfScores[`elim_${r-1}_${i*2+1}`];if(sc&&sc.a!==''&&sc.b!==''){const ga=parseInt(sc.a),gb=parseInt(sc.b);if(!isNaN(ga)&&!isNaN(gb))m.b=ga>=gb?pB.a:pB.b;}}
+    round.forEach((m, i) => {
+      const pr = tfFixture.rounds[r-1];
+      const pA = pr[i*2], pB = pr[i*2+1];
+      if(pA) {
+        const sc = tfScores[`elim_${r-1}_${i*2}`];
+        if(sc && sc.a!=='' && sc.b!=='') {
+          const ga = parseInt(sc.a), gb = parseInt(sc.b);
+          if(!isNaN(ga) && !isNaN(gb)) m.a = ga>=gb ? pA.a : pA.b;
+        }
+      }
+      if(pB) {
+        const sc = tfScores[`elim_${r-1}_${i*2+1}`];
+        if(sc && sc.a!=='' && sc.b!=='') {
+          const ga = parseInt(sc.a), gb = parseInt(sc.b);
+          if(!isNaN(ga) && !isNaN(gb)) m.b = ga>=gb ? pB.a : pB.b;
+        }
+      }
     });
   });
   tfRenderFixture();
 }
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
