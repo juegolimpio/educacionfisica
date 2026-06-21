@@ -2,133 +2,89 @@
 
 **Juego Limpio** es una aplicación web desarrollada para apoyar la organización, gestión y conducción de clases de Educación Física y competencias escolares. Integra en una única plataforma un sistema de tanteadores deportivos, un gestor automatizado de torneos y un módulo de cronometraje para actividades físicas, optimizados para su utilización en dispositivos móviles directamente desde el patio o el gimnasio.
 
-La aplicación funciona íntegramente desde el navegador, sin necesidad de instalación, conexión permanente a Internet ni servicios externos, permitiendo conservar automáticamente la información mediante almacenamiento local del dispositivo.
+La aplicación funciona íntegramente desde el navegador, sin necesidad de instalación, conexión permanente a Internet ni servicios externos, conservando automáticamente la información mediante almacenamiento local del dispositivo.
 
 ---
 
-# Funcionalidades
+## Funcionalidades
 
-## Sistema de Gestión de Torneos (Torneo Fácil)
+### Sistema de Gestión de Torneos — Torneo Fácil
 
 El módulo **Torneo Fácil** permite organizar campeonatos escolares de manera rápida y automatizada.
 
-Entre sus principales características se incluyen:
-
-- Generación automática de fixtures.
-- Organización de torneos en distintos formatos:
-  - Todos contra todos.
-  - Dos fases con final.
-  - Eliminación directa.
-- Actualización automática de resultados.
-- Cálculo instantáneo de tablas de posiciones.
-- Gestión automática de cruces y finales.
-- Evaluación de Fair Play mediante sistema de calificación.
-- Generación automática de informes finales listos para compartir mediante WhatsApp, Telegram o plataformas educativas como CREA.
+- Generación automática de fixtures
+- Tres formatos de torneo:
+  - Todos contra todos
+  - Dos fases con final
+  - Eliminación directa
+- Actualización automática de resultados
+- Cálculo instantáneo de tablas de posiciones deportivas
+- Evaluación de Fair Play mediante sistema de calificación por estrellas
+- Copa Juego Limpio: tabla paralela ordenada por conducta
+- Generación automática de informes listos para compartir por WhatsApp, Telegram o plataformas educativas como CREA
 
 ---
 
-## Tanteador Escolar
+### Tanteador Escolar
 
-Sistema de marcadores deportivos diseñado específicamente para el trabajo docente durante las clases.
+Sistema de marcadores deportivos diseñado para el trabajo docente durante las clases. Incluye soporte para:
 
-Incluye soporte para:
+- Voleibol
+- Básquetbol
+- Fútbol / Hándbol
+- Modo libre adaptable a cualquier disciplina
 
-- Voleibol.
-- Básquetbol.
-- Fútbol.
-- Modo libre adaptable a cualquier disciplina.
+Según el deporte seleccionado incorpora:
 
-Según el deporte seleccionado, incorpora herramientas específicas como:
-
-- Control de puntos.
-- Historial de sets.
-- Configuración personalizada de reglamentos en voleibol.
-- Control de faltas acumuladas.
-- Registro de tarjetas amarillas y rojas.
-- Indicadores visuales de bonificación por faltas.
-- Cronómetro integrado.
+- Control de puntos con historial de sets
+- Configuración personalizada de reglamento en voleibol
+- Control de faltas acumuladas con alerta de bonus en básquetbol
+- Registro de tarjetas amarillas y rojas en fútbol
+- Cronómetro integrado con presets configurables
+- Función deshacer y reinicio rápido
 
 ---
 
-## Módulo de Cronometraje y Ritmo
+## Características técnicas
 
-Herramienta destinada a actividades físicas que requieren control preciso del tiempo.
-
-Permite:
-
-- Configurar tiempos personalizados.
-- Programar intervalos de trabajo y recuperación.
-- Utilizar distintos tiempos predefinidos.
-- Controlar entrenamientos fraccionados.
-- Realizar circuitos físicos.
-- Dosificar cargas de trabajo mediante señales visuales y auditivas.
+- Desarrollada en HTML5, CSS3 y JavaScript ES6+
+- Sin dependencias de frameworks externos
+- Persistencia automática mediante LocalStorage
+- Funcionamiento completamente offline una vez cargada
+- Recuperación automática de sesiones
+- Diseño responsivo optimizado para teléfonos móviles y tabletas
+- Interfaz adaptada para uso en espacios abiertos durante el arbitraje y la conducción de actividades
+- Adaptación automática a modo oscuro y claro según el sistema operativo del dispositivo
 
 ---
 
-# Características técnicas
+## Uso
 
-La aplicación fue desarrollada utilizando tecnologías web estándar:
+No requiere instalación.
 
-- HTML5
-- CSS3
-- JavaScript (ES6+)
-- LocalStorage para persistencia de datos
-
-Su arquitectura no depende de frameworks externos, lo que permite una carga muy rápida y un consumo mínimo de recursos.
-
-Entre sus principales características técnicas se destacan:
-
-- Persistencia automática de toda la información.
-- Funcionamiento completamente offline una vez cargada.
-- Recuperación automática de sesiones.
-- Diseño responsivo optimizado para teléfonos móviles y tabletas.
-- Interfaz adaptada para uso durante el arbitraje y la conducción de actividades en espacios abiertos.
-
----
-
-# Tecnologías utilizadas
-
-- HTML5
-- CSS3
-- JavaScript (ES6+)
-- LocalStorage
-- Tabler Icons
-
----
-
-# Uso
-
-La aplicación no requiere instalación.
-
-Para utilizarla simplemente:
-
-1. Descargar o clonar el repositorio.
-2. Abrir el archivo `index.html` en cualquier navegador moderno.
-3. Comenzar a utilizar cualquiera de sus módulos.
+1. Descargar o clonar el repositorio
+2. Abrir el archivo `index.html` en cualquier navegador moderno
+3. Comenzar a utilizar cualquiera de sus módulos
 
 Toda la información queda almacenada automáticamente en el navegador del dispositivo.
 
 ---
 
-# Estado del proyecto
+## Estado del proyecto
 
-El proyecto se encuentra en desarrollo incremental y mejora continua.
-
-Las nuevas funcionalidades son incorporadas y validadas mediante su utilización en contextos reales de Educación Física en Educación Media, tomando como referencia la práctica docente cotidiana y las necesidades surgidas durante la implementación.
+El proyecto se encuentra en desarrollo incremental y mejora continua. Las nuevas funcionalidades son incorporadas y validadas mediante su utilización en contextos reales de Educación Física en Educación Media, tomando como referencia la práctica docente cotidiana y las necesidades surgidas durante la implementación.
 
 ---
 
-# Autor
+## Autor
 
-**Diego González**
-
-Docente de Educación Física (DGES – DGETP UTU, Uruguay)
-
-Contenidista de Educación Física de Edytics.
+**Diego González**  
+Docente de Educación Física — DGES / DGETP UTU, Uruguay  
+Contenidista de Educación Física en Edytics
 
 ---
 
-# Declaración de autoría e integridad académica
+## Declaración de autoría e integridad académica
 
 Esta aplicación fue conceptualizada, diseñada y dirigida por **Diego González**, docente de Educación Física en Educación Media.
 
@@ -140,11 +96,9 @@ Esta declaración reafirma el compromiso con la transparencia en el uso de tecno
 
 ---
 
-# Licencia
+## Licencia
 
-Este proyecto fue desarrollado con fines educativos y de innovación docente.
-
-Su utilización con propósitos educativos es bienvenida, respetando siempre la autoría correspondiente.
+Este proyecto fue desarrollado con fines educativos y de innovación docente. Su utilización con propósitos educativos es bienvenida, respetando siempre la autoría correspondiente.
 
 © Diego González
 
