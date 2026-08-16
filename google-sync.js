@@ -17,6 +17,7 @@
   let syncTimer = null;
   let syncBusy = false;
   let pendingSync = false;
+  let autoSyncEnabled = false;
 
   function configured(){
     return GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.startsWith('PENDIENTE_');
@@ -134,13 +135,15 @@
     try{
       const file=await findCloudSheet();
       if(!file){
+        autoSyncEnabled=false;
         setStatus('wait','Google conectado · todavía no hay hoja');
         show('google-create-btn',true);show('google-sync-btn',false);show('google-restore-btn',false);show('google-use-local-btn',false);
         note('Tocá “Crear mi hoja de Juego Limpio”. Se creará automáticamente en tu Google Drive.');
         return;
       }
+      autoSyncEnabled=false;
       setStatus('ok','Google conectado · hoja encontrada');
-      show('google-create-btn',false);show('google-sync-btn',true);
+      show('google-create-btn',false);show('google-sync-btn',false);
       const localHasData=Array.isArray(window.jlGetState?.()?.groups)&&window.jlGetState().groups.length>0;
       show('google-restore-btn',true);
       show('google-use-local-btn',localHasData);
@@ -154,6 +157,7 @@
       const file=await api('https://www.googleapis.com/drive/v3/files?fields=id,name',{method:'POST',body:JSON.stringify({name:FILE_NAME,mimeType:'application/vnd.google-apps.spreadsheet',appProperties:{[APP_KEY]:APP_VALUE}})});
       localStorage.setItem(LS_FILE_ID,file.id);
       await writeSnapshot(file.id);
+      autoSyncEnabled=true;
       show('google-create-btn',false);show('google-sync-btn',true);show('google-restore-btn',true);show('google-use-local-btn',false);
       setStatus('ok','Guardado en Google Sheets ✓');
       note('Tu hoja ya está creada en Google Drive. Los próximos cambios se sincronizarán automáticamente mientras Google esté conectado.');
@@ -236,7 +240,9 @@
       const file=await findCloudSheet();if(!file)throw new Error('NO_FILE');
       if(window.jlGetState?.()?.groups?.length && !confirm('Este dispositivo ya tiene grupos guardados.\n\n¿Querés REEMPLAZARLOS por la copia de Google?'))return;
       setStatus('wait','Recuperando datos desde Google…');
-      window.jlReplaceState(await readSnapshot(file.id));save();renderGroups();
+      window.jlReplaceState(await readSnapshot(file.id));
+      autoSyncEnabled=true;
+      save();renderGroups();
       setStatus('ok','Datos recuperados desde Google ✓');
       show('google-use-local-btn',false);show('google-sync-btn',true);
       note('Tus grupos ya están disponibles en este dispositivo.');
@@ -251,6 +257,7 @@
       const file=await findCloudSheet();if(!file){show('google-create-btn',true);setStatus('wait','Primero creá tu hoja de Juego Limpio');return;}
       setStatus('wait','Sincronizando…');
       await writeSnapshot(file.id);
+      autoSyncEnabled=true;
       setStatus('ok','Guardado en Google Sheets ✓');show('google-use-local-btn',false);show('google-sync-btn',true);
       const t=new Date();note(`Última sincronización: ${t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}.`);
     }catch(e){console.error(e);if(e.message!=='TOKEN_EXPIRED'){setStatus('err','Pendiente de sincronizar');note('Tus cambios siguen guardados en este dispositivo. Podés volver a intentar cuando haya conexión.');}}
@@ -258,7 +265,7 @@
   }
 
   function scheduleSync(){
-    if(!accessToken||!localStorage.getItem(LS_FILE_ID))return;
+    if(!autoSyncEnabled||!accessToken||!localStorage.getItem(LS_FILE_ID))return;
     clearTimeout(syncTimer);setStatus('wait','Cambios guardados localmente · sincronizando…');syncTimer=setTimeout(syncNow,1800);
   }
 
