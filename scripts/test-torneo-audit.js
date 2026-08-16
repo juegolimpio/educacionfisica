@@ -1,3 +1,4 @@
+// Functional audit tests for Torneo Fácil
 const fs = require('fs');
 const vm = require('vm');
 const html = fs.readFileSync('index.html','utf8');
@@ -24,7 +25,6 @@ function run(code, ctx={}) {
   return sandbox;
 }
 
-// 0) Sintaxis de todos los scripts inline.
 const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 scripts.forEach((src,i) => {
   try { new vm.Script(src); }
@@ -32,7 +32,6 @@ scripts.forEach((src,i) => {
 });
 console.log('✓ Sintaxis JavaScript válida');
 
-// 1) Eliminación directa con 5 equipos: 8 plazas, 3 BYE, nadie desaparece.
 {
   const code = extractFunction('tfShuffle') + '\n' + extractFunction('tfGenerateElim');
   const c = run(code);
@@ -46,7 +45,6 @@ console.log('✓ Sintaxis JavaScript válida');
   console.log('✓ Eliminación con 5 equipos y BYE');
 }
 
-// 2) Empate en eliminación: no avanza nadie hasta selección manual.
 {
   const code = extractFunction('tfElimWinner');
   const c = run(code, { tfScores:{m:{a:'2',b:'2'}}, tfElimAdvance:{} });
@@ -57,7 +55,6 @@ console.log('✓ Sintaxis JavaScript válida');
   console.log('✓ Desempate manual en eliminación');
 }
 
-// 3) Fair Play: sin evaluación explícita no cuenta como 5.
 {
   const code = extractFunction('tfCalcStandings');
   const c = run(code, { tfScores:{r0_0:{a:'1',b:'0'}}, tfFairPlay:{} });
@@ -68,7 +65,6 @@ console.log('✓ Sintaxis JavaScript válida');
   console.log('✓ Fair Play sin evaluación explícita');
 }
 
-// 4) Informe: 0-0 debe conservarse como resultado válido.
 {
   const code = extractFunction('tfCalcStandings') + '\n' + extractFunction('tfBuildReport');
   const c = run(code, {
@@ -82,7 +78,6 @@ console.log('✓ Sintaxis JavaScript válida');
   console.log('✓ Resultado 0-0 preservado en informe');
 }
 
-// 5) Liguilla: final solo tras completar todos los grupos.
 {
   const code = extractFunction('tfAllScoresComplete');
   const c = run(code, { tfScores:{} });
