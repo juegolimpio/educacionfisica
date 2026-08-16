@@ -9,6 +9,7 @@
 @media(prefers-color-scheme:light){:root{--bg:#f4f6f9;--sur:#fff;--sur2:#f1f3f5;--text:#1f2328;--muted:#656d76;--border:rgba(0,0,0,.12);--blue:#0969da;--green:#1a7f37;--yellow:#9a6700;--red:#cf222e;--gray:#656d76}}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sur);border-bottom:1px solid var(--border)}.back{border:0;background:transparent;color:var(--text);font-size:22px;cursor:pointer;padding:8px 10px}.topbar strong{font-size:16px}.app{max-width:1050px;margin:0 auto;padding:20px}.warning{background:rgba(210,153,34,.12);border:1px solid rgba(210,153,34,.35);border-radius:12px;padding:12px 14px;color:var(--text);font-size:13px;line-height:1.45;margin-bottom:18px}.warning b{color:var(--yellow)}.card{background:var(--sur);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.btn{border:1px solid var(--border);border-radius:10px;background:var(--sur2);color:var(--text);padding:10px 13px;font-weight:700;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:#08111c}.btn.danger{color:var(--red)}.btn.small{padding:7px 10px;font-size:12px}.btn:disabled{opacity:.45;cursor:not-allowed}.input,.select,.textarea{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--sur2);color:var(--text);padding:10px 12px;font-size:14px;outline:none}.input:focus,.select:focus,.textarea:focus{border-color:var(--blue)}.textarea{min-height:120px;resize:vertical}.label{display:block;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:12px}.group-card{border:1px solid var(--border);border-radius:12px;background:var(--sur2);padding:13px}.group-card h3{margin:0 0 5px;font-size:17px}.group-meta{font-size:12px;color:var(--muted);margin-bottom:10px}.hidden{display:none!important}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:14px 0}.stat{border:1px solid var(--border);background:var(--sur2);border-radius:10px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800}.stat.green b{color:var(--green)}.stat.yellow b{color:var(--yellow)}.stat.red b{color:var(--red)}.stat.gray b{color:var(--gray)}.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}table{width:100%;border-collapse:collapse;min-width:780px}th,td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}th{text-align:left;background:var(--sur2);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}td.num{width:44px;color:var(--muted);text-align:center}.name-input{min-width:170px}.date-input{min-width:145px}.perm-select{min-width:120px}.badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;white-space:nowrap}.vigente{background:rgba(63,185,80,.14);color:var(--green)}.proximo{background:rgba(210,153,34,.16);color:var(--yellow)}.vencido{background:rgba(248,81,73,.14);color:var(--red)}.sinregistro{background:rgba(139,148,158,.14);color:var(--gray)}.tools{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted);font-size:13px}.section-title{margin:0 0 4px;font-size:20px}.backup-meta{font-size:12px;color:var(--muted);margin-top:8px}.filterbar{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin:12px 0}@media(max-width:650px){.app{padding:14px}.filterbar{grid-template-columns:1fr}.card{padding:13px}.topbar strong{font-size:14px}}
 </style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="topbar"><button class="back" onclick="location.href='index.html'" aria-label="Volver">←</button><strong>🩺 Carné de salud y permisos</strong></div>
@@ -32,7 +33,9 @@
       <div class="tools" style="margin-top:12px">
         <button class="btn" onclick="exportBackup()">💾 Exportar respaldo</button>
         <button class="btn" onclick="document.getElementById('import-file').click()">📂 Importar respaldo</button>
+        <button class="btn" onclick="document.getElementById('excel-file').click()">📊 Importar Excel</button>
         <input id="import-file" class="hidden" type="file" accept="application/json,.json" onchange="importBackup(event)">
+        <input id="excel-file" class="hidden" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="importExcel(event)">
       </div>
       <div id="backup-meta" class="backup-meta"></div>
     </div>
@@ -132,6 +135,52 @@ function renderStudents(){const g=getGroup();if(!g)return;renderSummary();const 
 
 function exportBackup(){const payload={app:'Juego Limpio - Carné de salud y permisos',version:1,exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');const stamp=new Date().toISOString().slice(0,10);a.href=URL.createObjectURL(blob);a.download=`juego-limpio-carne-salud-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);localStorage.setItem(BACKUP_KEY,new Date().toISOString());renderBackupMeta();}
 function importBackup(event){const file=event.target.files?.[0];event.target.value='';if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=parsed?.data||parsed;if(!Array.isArray(incoming?.groups))throw new Error('Formato inválido');const normalized=normalizeState(incoming);if(!confirm(`Se reemplazarán los datos actuales por el respaldo seleccionado.\n\nGrupos a importar: ${normalized.groups.length}\n\n¿Continuar?`))return;state=normalized;save();showGroups();alert('Respaldo importado correctamente.');}catch(e){alert('No se pudo importar el respaldo. Verificá que sea un archivo generado por Juego Limpio.');}};reader.readAsText(file);}
+
+function normalizeHeader(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();}
+function uniqueGroupName(name){let base=String(name||'Grupo').trim().slice(0,60)||'Grupo';let candidate=base,n=2;const used=new Set(state.groups.map(g=>g.name.toLowerCase()));while(used.has(candidate.toLowerCase()))candidate=`${base} (${n++})`;return candidate.slice(0,60);}
+function excelDateToISO(value){
+  if(value===null||value===undefined||value==='')return '';
+  if(value instanceof Date&&!isNaN(value)){const y=value.getFullYear(),m=String(value.getMonth()+1).padStart(2,'0'),d=String(value.getDate()).padStart(2,'0');return `${y}-${m}-${d}`;}
+  if(typeof value==='number'&&window.XLSX?.SSF){const parsed=XLSX.SSF.parse_date_code(value);if(parsed)return `${String(parsed.y).padStart(4,'0')}-${String(parsed.m).padStart(2,'0')}-${String(parsed.d).padStart(2,'0')}`;}
+  const text=String(value).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(text))return text.slice(0,10);
+  const m=text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);if(m){let y=Number(m[3]);if(y<100)y+=2000;return `${String(y).padStart(4,'0')}-${String(Number(m[2])).padStart(2,'0')}-${String(Number(m[1])).padStart(2,'0')}`;}
+  return '';
+}
+function permissionFromExcel(value){const v=normalizeHeader(value).toUpperCase();if(['SI','ENTREGADO','TRUE','1'].includes(v))return 'ENTREGADO';if(['NO','NO ENTREGADO','FALSE','0'].includes(v))return 'NO ENTREGADO';return 'PENDIENTE';}
+async function importExcel(event){
+  const file=event.target.files?.[0];event.target.value='';if(!file)return;
+  if(typeof XLSX==='undefined'){alert('No se pudo cargar el lector de Excel. Verificá tu conexión a Internet e intentá nuevamente.');return;}
+  try{
+    const workbook=XLSX.read(await file.arrayBuffer(),{cellDates:true});
+    const hasNonTemplate=workbook.SheetNames.some(n=>normalizeHeader(n)!=='plantilla');
+    const imported=[];
+    for(const sheetName of workbook.SheetNames){
+      if(hasNonTemplate&&normalizeHeader(sheetName)==='plantilla')continue;
+      const ws=workbook.Sheets[sheetName];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+      let headerRow=-1,nameIdx=-1,expiryIdx=-1,permissionIdx=-1;
+      for(let r=0;r<Math.min(rows.length,10);r++){
+        const headers=(rows[r]||[]).map(normalizeHeader);
+        const ni=headers.indexOf('nombre');
+        if(ni>=0){headerRow=r;nameIdx=ni;expiryIdx=headers.indexOf('vencimiento');permissionIdx=headers.indexOf('permiso');break;}
+      }
+      if(headerRow<0)continue;
+      const students=[];
+      for(let r=headerRow+1;r<rows.length;r++){
+        const row=rows[r]||[];const name=String(row[nameIdx]??'').trim();if(!name)continue;
+        students.push({id:uid(),name:name.slice(0,120),expiry:expiryIdx>=0?excelDateToISO(row[expiryIdx]):'',permission:permissionIdx>=0?permissionFromExcel(row[permissionIdx]):'PENDIENTE'});
+      }
+      if(students.length)imported.push({id:uid(),name:uniqueGroupName(sheetName),students});
+    }
+    if(!imported.length){alert('No encontré hojas con una columna “Nombre” y alumnos para importar.');return;}
+    const total=imported.reduce((n,g)=>n+g.students.length,0);
+    if(!confirm(`Se agregarán ${imported.length} grupo(s) y ${total} alumno(s) desde el Excel.\n\nSe leerán Nombre, Vencimiento y Permiso. La Cédula, Días y Estado no se importarán.\n\n¿Continuar?`))return;
+    state.groups.push(...imported);save();renderGroups();
+    alert(`Excel importado correctamente: ${imported.length} grupo(s), ${total} alumno(s).`);
+  }catch(e){console.error(e);alert('No se pudo leer el Excel. Verificá que sea un archivo .xlsx o .xls válido.');}
+}
+
 function renderBackupMeta(){const raw=localStorage.getItem(BACKUP_KEY);const el=document.getElementById('backup-meta');if(!raw){el.textContent='Todavía no se registró ningún respaldo descargado.';return;}const d=new Date(raw);el.textContent='Último respaldo descargado desde este navegador: '+d.toLocaleString('es-UY');}
 
 document.getElementById('new-group').addEventListener('keydown',e=>{if(e.key==='Enter')createGroup();});
