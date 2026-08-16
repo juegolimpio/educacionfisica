@@ -141,7 +141,7 @@
       }
       setStatus('ok','Google conectado · hoja encontrada');
       show('google-create-btn',false);show('google-sync-btn',true);
-      const localHasData=Array.isArray(window.state?.groups)&&window.state.groups.length>0;
+      const localHasData=Array.isArray(window.jlGetState?.()?.groups)&&window.jlGetState().groups.length>0;
       show('google-restore-btn',true);
       show('google-use-local-btn',localHasData);
       note(localHasData?'Encontré datos tanto en este dispositivo como en Google. Elegí qué versión querés conservar antes de sincronizar automáticamente.':'Encontré tu hoja. Recuperá tus grupos para continuar en este dispositivo.');
@@ -178,7 +178,7 @@
     const spreadsheet=await api(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(fileId)}?fields=sheets.properties`);
     const existing=spreadsheet.sheets||[];
     const used=new Set();
-    const groups=(window.state?.groups||[]).map(g=>({g,title:safeTitle(g.name,used)}));
+    const groups=(window.jlGetState?.()?.groups||[]).map(g=>({g,title:safeTitle(g.name,used)}));
     const tempTitle='_JL_TEMP_'+Date.now();
     const requests=[{addSheet:{properties:{title:tempTitle,hidden:true}}}];
     existing.forEach(sh=>requests.push({deleteSheet:{sheetId:sh.properties.sheetId}}));
@@ -234,9 +234,9 @@
   async function restoreFromCloud(){
     try{
       const file=await findCloudSheet();if(!file)throw new Error('NO_FILE');
-      if(window.state?.groups?.length && !confirm('Este dispositivo ya tiene grupos guardados.\n\n¿Querés REEMPLAZARLOS por la copia de Google?'))return;
+      if(window.jlGetState?.()?.groups?.length && !confirm('Este dispositivo ya tiene grupos guardados.\n\n¿Querés REEMPLAZARLOS por la copia de Google?'))return;
       setStatus('wait','Recuperando datos desde Google…');
-      window.state=await readSnapshot(file.id);save();renderGroups();
+      window.jlReplaceState(await readSnapshot(file.id));save();renderGroups();
       setStatus('ok','Datos recuperados desde Google ✓');
       show('google-use-local-btn',false);show('google-sync-btn',true);
       note('Tus grupos ya están disponibles en este dispositivo.');
@@ -262,11 +262,7 @@
     clearTimeout(syncTimer);setStatus('wait','Cambios guardados localmente · sincronizando…');syncTimer=setTimeout(syncNow,1800);
   }
 
-  function wrapLocalSave(){
-    if(typeof window.save!=='function')return;
-    const localSave=window.save;
-    window.save=function(){const r=localSave.apply(this,arguments);scheduleSync();return r;};
-  }
+  function installSaveHook(){window.jlAfterLocalSave=scheduleSync;}
 
-  injectStyles();injectCard();wrapLocalSave();
+  injectStyles();injectCard();installSaveHook();
 })();
