@@ -32,6 +32,7 @@
       <p class="muted">El respaldo incluye todos los grupos, alumnos, vencimientos y permisos.</p>
       <div class="tools" style="margin-top:12px">
         <button class="btn" onclick="exportBackup()">💾 Exportar respaldo</button>
+        <button class="btn" onclick="exportExcel()">📊 Exportar Excel</button>
         <button class="btn" onclick="document.getElementById('import-file').click()">📂 Importar respaldo</button>
         <button class="btn" onclick="document.getElementById('excel-file').click()">📊 Importar Excel</button>
         <input id="import-file" class="hidden" type="file" accept="application/json,.json" onchange="importBackup(event)">
@@ -132,6 +133,22 @@ function renderStudents(){const g=getGroup();if(!g)return;renderSummary();const 
 <td><select class="select perm-select" onchange="updateStudent('${esc(s.id)}','permission',this.value)"><option value="PENDIENTE" ${s.permission==='PENDIENTE'?'selected':''}>Pendiente</option><option value="ENTREGADO" ${s.permission==='ENTREGADO'?'selected':''}>Entregado</option><option value="NO ENTREGADO" ${s.permission==='NO ENTREGADO'?'selected':''}>No entregado</option></select></td>
 <td><button class="btn small danger" onclick="deleteStudent('${esc(s.id)}')" title="Eliminar alumno">✕</button></td>
 </tr>`).join('');}
+
+
+function formatDateForExcel(iso){if(!iso)return '';const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:String(iso);}
+function safeSheetName(name,used){let base=String(name||'Grupo').replace(/[\\\/?*\[\]:]/g,' ').replace(/\s+/g,' ').trim()||'Grupo';base=base.slice(0,31);let candidate=base,n=2;while(used.has(candidate.toLowerCase())){const suffix=` (${n++})`;candidate=base.slice(0,31-suffix.length)+suffix;}used.add(candidate.toLowerCase());return candidate;}
+function exportExcel(){
+  if(typeof XLSX==='undefined'){alert('No se pudo cargar el generador de Excel. Verificá tu conexión a Internet e intentá nuevamente.');return;}
+  if(!state.groups.length){alert('No hay grupos para exportar.');return;}
+  const wb=XLSX.utils.book_new();const used=new Set();
+  state.groups.forEach(g=>{
+    const rows=[['Nº','Nombre','Vencimiento','Días','Estado','Permiso']];
+    g.students.forEach((s,i)=>{const st=statusFor(s.expiry);const perm=s.permission==='ENTREGADO'?'Entregado':s.permission==='NO ENTREGADO'?'No entregado':'Pendiente';rows.push([i+1,s.name,formatDateForExcel(s.expiry),st.days===null?'':st.days,st.label,perm]);});
+    const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:6},{wch:30},{wch:14},{wch:10},{wch:16},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws,safeSheetName(g.name,used));
+  });
+  const stamp=new Date().toISOString().slice(0,10);XLSX.writeFile(wb,`juego-limpio-carne-salud-${stamp}.xlsx`);
+}
 
 function exportBackup(){const payload={app:'Juego Limpio - Carné de salud y permisos',version:1,exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');const stamp=new Date().toISOString().slice(0,10);a.href=URL.createObjectURL(blob);a.download=`juego-limpio-carne-salud-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);localStorage.setItem(BACKUP_KEY,new Date().toISOString());renderBackupMeta();}
 function importBackup(event){const file=event.target.files?.[0];event.target.value='';if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=parsed?.data||parsed;if(!Array.isArray(incoming?.groups))throw new Error('Formato inválido');const normalized=normalizeState(incoming);if(!confirm(`Se reemplazarán los datos actuales por el respaldo seleccionado.\n\nGrupos a importar: ${normalized.groups.length}\n\n¿Continuar?`))return;state=normalized;save();showGroups();alert('Respaldo importado correctamente.');}catch(e){alert('No se pudo importar el respaldo. Verificá que sea un archivo generado por Juego Limpio.');}};reader.readAsText(file);}
