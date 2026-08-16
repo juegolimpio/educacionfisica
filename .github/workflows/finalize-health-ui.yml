@@ -1,0 +1,52 @@
+name: Finalize health card UI
+on:
+  push:
+    branches:
+      - feature/carne-salud-local
+    paths:
+      - .github/workflows/finalize-health-ui.yml
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/carne-salud-local
+      - name: Apply finalizer
+        run: python scripts/finalize_health_ui.py
+      - name: Verify
+        run: |
+          git diff --check
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('carne-salud.html').read_text(encoding='utf-8')
+          assert 'Exportar respaldo' not in s
+          assert 'Importar respaldo' not in s
+          assert 'Exportar Excel' in s
+          assert 'Importar Excel' in s
+          assert 'Escribí A para AGREGAR' in s
+          scripts=re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>',s,flags=re.S|re.I)
+          Path('/tmp/carne-inline.js').write_text('\n'.join(scripts),encoding='utf-8')
+          PY
+          node --check /tmp/carne-inline.js
+      - name: Clean temporary files
+        run: |
+          rm -f .github/workflows/agregar-importacion-excel.yml
+          rm -f .github/workflows/aplicar-exportacion-excel.yml
+          rm -f .github/workflows/aplicar-importacion-excel.yml
+          rm -f .github/workflows/finalizar-excel-carne.yml
+          rm -f .github/workflows/finalize-health-ui.yml
+          rm -f scripts/patch_excel_export.py
+          rm -f scripts/patch_excel_import.py
+          rm -f scripts/finalize_health_ui.py
+          rmdir scripts 2>/dev/null || true
+      - name: Save final version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Simplify health card backup to Excel only"
+          git push
