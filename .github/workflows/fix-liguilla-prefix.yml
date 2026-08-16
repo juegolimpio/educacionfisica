@@ -1,0 +1,23 @@
+name: Fix liguilla prefix
+on:
+  push:
+    branches: [fix/torneo-facil-auditoria]
+    paths: [scripts/fix-liguilla-prefix.js]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/torneo-facil-auditoria
+      - run: node scripts/fix-liguilla-prefix.js
+      - run: git diff --check
+      - shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix liguilla score key prefixes"
+          git push
