@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carné de salud y permisos - Juego Limpio</title>
+<style>
+:root{--bg:#0d1117;--sur:#161b22;--sur2:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.12);--blue:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--gray:#8b949e;--r:14px}
+@media(prefers-color-scheme:light){:root{--bg:#f4f6f9;--sur:#fff;--sur2:#f1f3f5;--text:#1f2328;--muted:#656d76;--border:rgba(0,0,0,.12);--blue:#0969da;--green:#1a7f37;--yellow:#9a6700;--red:#cf222e;--gray:#656d76}}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sur);border-bottom:1px solid var(--border)}.back{border:0;background:transparent;color:var(--text);font-size:22px;cursor:pointer;padding:8px 10px}.topbar strong{font-size:16px}.app{max-width:1050px;margin:0 auto;padding:20px}.warning{background:rgba(210,153,34,.12);border:1px solid rgba(210,153,34,.35);border-radius:12px;padding:12px 14px;color:var(--text);font-size:13px;line-height:1.45;margin-bottom:18px}.warning b{color:var(--yellow)}.card{background:var(--sur);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.btn{border:1px solid var(--border);border-radius:10px;background:var(--sur2);color:var(--text);padding:10px 13px;font-weight:700;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:#08111c}.btn.danger{color:var(--red)}.btn.small{padding:7px 10px;font-size:12px}.btn:disabled{opacity:.45;cursor:not-allowed}.input,.select,.textarea{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--sur2);color:var(--text);padding:10px 12px;font-size:14px;outline:none}.input:focus,.select:focus,.textarea:focus{border-color:var(--blue)}.textarea{min-height:120px;resize:vertical}.label{display:block;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:12px}.group-card{border:1px solid var(--border);border-radius:12px;background:var(--sur2);padding:13px}.group-card h3{margin:0 0 5px;font-size:17px}.group-meta{font-size:12px;color:var(--muted);margin-bottom:10px}.hidden{display:none!important}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:14px 0}.stat{border:1px solid var(--border);background:var(--sur2);border-radius:10px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800}.stat.green b{color:var(--green)}.stat.yellow b{color:var(--yellow)}.stat.red b{color:var(--red)}.stat.gray b{color:var(--gray)}.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}table{width:100%;border-collapse:collapse;min-width:780px}th,td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}th{text-align:left;background:var(--sur2);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}td.num{width:44px;color:var(--muted);text-align:center}.name-input{min-width:170px}.date-input{min-width:145px}.perm-select{min-width:120px}.badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;white-space:nowrap}.vigente{background:rgba(63,185,80,.14);color:var(--green)}.proximo{background:rgba(210,153,34,.16);color:var(--yellow)}.vencido{background:rgba(248,81,73,.14);color:var(--red)}.sinregistro{background:rgba(139,148,158,.14);color:var(--gray)}.tools{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted);font-size:13px}.section-title{margin:0 0 4px;font-size:20px}.backup-meta{font-size:12px;color:var(--muted);margin-top:8px}.filterbar{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin:12px 0}@media(max-width:650px){.app{padding:14px}.filterbar{grid-template-columns:1fr}.card{padding:13px}.topbar strong{font-size:14px}}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="topbar"><button class="back" onclick="location.href='index.html'" aria-label="Volver">←</button><strong>🩺 Carné de salud y permisos</strong></div>
+<div class="app">
+  <div class="warning"><b>Importante:</b> los datos se guardan automáticamente en este navegador. Para no depender de un solo dispositivo, exportá periódicamente una copia en Excel.</div>
+
+  <section id="groups-view">
+    <div class="card">
+      <h1 class="section-title">Mis grupos</h1>
+      <p class="muted">Creá los grupos que necesites: 7.º 1, 8.º 3, MD, MH, Nocturno, etc.</p>
+      <div class="row" style="margin-top:14px">
+        <input id="new-group" class="input" style="flex:1;min-width:220px" maxlength="60" placeholder="Nombre del grupo">
+        <button class="btn primary" onclick="createGroup()">+ Crear grupo</button>
+      </div>
+      <div id="groups-list" class="groups"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title" style="font-size:17px">Datos y respaldo</h2>
+      <p class="muted">Los datos se guardan automáticamente en este navegador. Usá Excel para guardar una copia o trasladar tus grupos a otro dispositivo.</p>
+      <div class="tools" style="margin-top:12px">
+        <button class="btn" onclick="exportExcel()">📊 Exportar Excel</button>
+        <button class="btn" onclick="document.getElementById('excel-file').click()">📂 Importar Excel</button>
+        <input id="excel-file" class="hidden" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="importExcel(event)">
+      </div>
+    </div>
+  </section>
+
+  <section id="group-view" class="hidden">
+    <div class="card">
+      <div class="row between">
+        <div>
+          <button class="btn small" onclick="showGroups()">← Mis grupos</button>
+          <h1 id="group-title" class="section-title" style="margin-top:12px"></h1>
+        </div>
+        <div class="tools">
+          <button class="btn small" onclick="renameCurrentGroup()">✏️ Renombrar</button>
+          <button class="btn small danger" onclick="deleteCurrentGroup()">🗑 Eliminar grupo</button>
+        </div>
+      </div>
+
+      <div id="summary" class="summary"></div>
+
+      <div class="filterbar">
+        <input id="search" class="input" placeholder="Buscar alumno" oninput="renderStudents()">
+        <select id="status-filter" class="select" onchange="renderStudents()">
+          <option value="all">Todos los estados</option>
+          <option value="VIGENTE">Vigente</option>
+          <option value="PRÓXIMO">Próximo a vencer</option>
+          <option value="VENCIDO">Vencido</option>
+          <option value="SIN REGISTRO">Sin registro</option>
+          <option value="PERMISO PENDIENTE">Permiso pendiente</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nº</th><th>Nombre</th><th>Vencimiento</th><th>Días</th><th>Estado</th><th>Permiso</th><th></th></tr></thead>
+          <tbody id="students-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="label" for="bulk-names">Agregar alumnos</label>
+      <textarea id="bulk-names" class="textarea" placeholder="Un nombre por línea"></textarea>
+      <div class="row between" style="margin-top:10px">
+        <span class="muted">No se solicita ni almacena cédula.</span>
+        <button class="btn primary" onclick="addStudents()">+ Agregar a este grupo</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const STORAGE_KEY='juegolimpio_carne_salud_v1';
+let state=loadState();
+let currentGroupId=null;
+
+function uid(){return (crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));}
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return {version:1,groups:[]};const d=JSON.parse(raw);return normalizeState(d);}catch(e){return {version:1,groups:[]};}}
+function normalizeState(d){const groups=Array.isArray(d?.groups)?d.groups:[];return {version:1,groups:groups.map(g=>({id:String(g.id||uid()),name:String(g.name||'Grupo').slice(0,60),students:(Array.isArray(g.students)?g.students:[]).map(s=>({id:String(s.id||uid()),name:String(s.name||'').slice(0,120),expiry:/^\d{4}-\d{2}-\d{2}$/.test(String(s.expiry||''))?String(s.expiry):'',permission:['PENDIENTE','ENTREGADO','NO ENTREGADO'].includes(s.permission)?s.permission:'PENDIENTE'}))}))};}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+function getGroup(){return state.groups.find(g=>g.id===currentGroupId)||null;}
+
+function createGroup(){const input=document.getElementById('new-group');const name=input.value.trim();if(!name)return;state.groups.push({id:uid(),name:name.slice(0,60),students:[]});save();input.value='';renderGroups();}
+function renderGroups(){const box=document.getElementById('groups-list');if(!state.groups.length){box.innerHTML='<p class="muted">Todavía no hay grupos. Creá el primero arriba.</p>';return;}box.innerHTML=state.groups.map(g=>`<div class="group-card"><h3>${esc(g.name)}</h3><div class="group-meta">${g.students.length} alumno${g.students.length===1?'':'s'}</div><button class="btn small primary" onclick="openGroup('${esc(g.id)}')">Abrir</button></div>`).join('');}
+function openGroup(id){currentGroupId=id;document.getElementById('groups-view').classList.add('hidden');document.getElementById('group-view').classList.remove('hidden');document.getElementById('search').value='';document.getElementById('status-filter').value='all';renderCurrentGroup();}
+function showGroups(){currentGroupId=null;document.getElementById('group-view').classList.add('hidden');document.getElementById('groups-view').classList.remove('hidden');renderGroups();}
+function renameCurrentGroup(){const g=getGroup();if(!g)return;const name=prompt('Nuevo nombre del grupo:',g.name);if(name===null)return;const clean=name.trim();if(!clean)return;g.name=clean.slice(0,60);save();renderCurrentGroup();}
+function deleteCurrentGroup(){const g=getGroup();if(!g)return;if(!confirm(`¿Eliminar “${g.name}”?\n\nSe eliminarán también los datos de sus alumnos.`))return;state.groups=state.groups.filter(x=>x.id!==g.id);save();showGroups();}
+
+function addStudents(){const g=getGroup();if(!g)return;const ta=document.getElementById('bulk-names');const names=ta.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!names.length)return;names.forEach(name=>g.students.push({id:uid(),name:name.slice(0,120),expiry:'',permission:'PENDIENTE'}));save();ta.value='';renderCurrentGroup();}
+function updateStudent(id,field,value){const g=getGroup();const s=g?.students.find(x=>x.id===id);if(!s)return;if(field==='name')s.name=String(value).slice(0,120);if(field==='expiry')s.expiry=value;if(field==='permission'&&['PENDIENTE','ENTREGADO','NO ENTREGADO'].includes(value))s.permission=value;save();renderCurrentGroup(false);}
+function deleteStudent(id){const g=getGroup();if(!g)return;g.students=g.students.filter(s=>s.id!==id);save();renderCurrentGroup();}
+
+function todayMidnight(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate());}
+function statusFor(expiry){if(!expiry)return {label:'SIN REGISTRO',days:null,cls:'sinregistro'};const [y,m,d]=expiry.split('-').map(Number);const target=new Date(y,m-1,d);const days=Math.round((target-todayMidnight())/86400000);if(days<0)return {label:'VENCIDO',days,cls:'vencido'};if(days<=30)return {label:'PRÓXIMO',days,cls:'proximo'};return {label:'VIGENTE',days,cls:'vigente'};}
+function daysText(days){if(days===null)return '—';if(days===0)return 'Hoy';return String(days);}
+
+function renderCurrentGroup(refreshTable=true){const g=getGroup();if(!g){showGroups();return;}document.getElementById('group-title').textContent=g.name;renderSummary();if(refreshTable)renderStudents();}
+function renderSummary(){const g=getGroup();if(!g)return;const counts={VIGENTE:0,'PRÓXIMO':0,VENCIDO:0,'SIN REGISTRO':0,PENDIENTE:0};g.students.forEach(s=>{counts[statusFor(s.expiry).label]++;if(s.permission==='PENDIENTE')counts.PENDIENTE++;});document.getElementById('summary').innerHTML=`
+<div class="stat"><b>${g.students.length}</b><span>Alumnos</span></div>
+<div class="stat green"><b>${counts.VIGENTE}</b><span>Vigentes</span></div>
+<div class="stat yellow"><b>${counts['PRÓXIMO']}</b><span>Próximos</span></div>
+<div class="stat red"><b>${counts.VENCIDO}</b><span>Vencidos</span></div>
+<div class="stat gray"><b>${counts['SIN REGISTRO']}</b><span>Sin registro</span></div>
+<div class="stat yellow"><b>${counts.PENDIENTE}</b><span>Permisos pendientes</span></div>`;}
+function renderStudents(){const g=getGroup();if(!g)return;renderSummary();const q=document.getElementById('search').value.trim().toLowerCase();const filter=document.getElementById('status-filter').value;const rows=g.students.map((s,index)=>({s,index,st:statusFor(s.expiry)})).filter(({s,st})=>{if(q&&!s.name.toLowerCase().includes(q))return false;if(filter==='all')return true;if(filter==='PERMISO PENDIENTE')return s.permission==='PENDIENTE';return st.label===filter;});const body=document.getElementById('students-body');if(!rows.length){body.innerHTML='<tr><td colspan="7" class="muted" style="text-align:center;padding:20px">No hay alumnos para mostrar.</td></tr>';return;}body.innerHTML=rows.map(({s,index,st})=>`<tr>
+<td class="num">${index+1}</td>
+<td><input class="input name-input" value="${esc(s.name)}" onchange="updateStudent('${esc(s.id)}','name',this.value)"></td>
+<td><input class="input date-input" type="date" value="${esc(s.expiry)}" onchange="updateStudent('${esc(s.id)}','expiry',this.value)"></td>
+<td>${esc(daysText(st.days))}</td>
+<td><span class="badge ${st.cls}">${esc(st.label)}</span></td>
+<td><select class="select perm-select" onchange="updateStudent('${esc(s.id)}','permission',this.value)"><option value="PENDIENTE" ${s.permission==='PENDIENTE'?'selected':''}>Pendiente</option><option value="ENTREGADO" ${s.permission==='ENTREGADO'?'selected':''}>Entregado</option><option value="NO ENTREGADO" ${s.permission==='NO ENTREGADO'?'selected':''}>No entregado</option></select></td>
+<td><button class="btn small danger" onclick="deleteStudent('${esc(s.id)}')" title="Eliminar alumno">✕</button></td>
+</tr>`).join('');}
+
+
+function formatDateForExcel(iso){if(!iso)return '';const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:String(iso);}
+function safeSheetName(name,used){let base=String(name||'Grupo').replace(/[\\\/?*\[\]:]/g,' ').replace(/\s+/g,' ').trim()||'Grupo';base=base.slice(0,31);let candidate=base,n=2;while(used.has(candidate.toLowerCase())){const suffix=` (${n++})`;candidate=base.slice(0,31-suffix.length)+suffix;}used.add(candidate.toLowerCase());return candidate;}
+function exportExcel(){
+  if(typeof XLSX==='undefined'){alert('No se pudo cargar el generador de Excel. Verificá tu conexión a Internet e intentá nuevamente.');return;}
+  if(!state.groups.length){alert('No hay grupos para exportar.');return;}
+  const wb=XLSX.utils.book_new();const used=new Set();
+  state.groups.forEach(g=>{
+    const rows=[['Nº','Nombre','Vencimiento','Días','Estado','Permiso']];
+    g.students.forEach((s,i)=>{const st=statusFor(s.expiry);const perm=s.permission==='ENTREGADO'?'Entregado':s.permission==='NO ENTREGADO'?'No entregado':'Pendiente';rows.push([i+1,s.name,formatDateForExcel(s.expiry),st.days===null?'':st.days,st.label,perm]);});
+    const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:6},{wch:30},{wch:14},{wch:10},{wch:16},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws,safeSheetName(g.name,used));
+  });
+  const stamp=new Date().toISOString().slice(0,10);XLSX.writeFile(wb,`juego-limpio-carne-salud-${stamp}.xlsx`);
+}
+
+function normalizeHeader(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();}
+function uniqueGroupName(name){let base=String(name||'Grupo').trim().slice(0,60)||'Grupo';let candidate=base,n=2;const used=new Set(state.groups.map(g=>g.name.toLowerCase()));while(used.has(candidate.toLowerCase()))candidate=`${base} (${n++})`;return candidate.slice(0,60);}
+function excelDateToISO(value){
+  if(value===null||value===undefined||value==='')return '';
+  if(value instanceof Date&&!isNaN(value)){const y=value.getFullYear(),m=String(value.getMonth()+1).padStart(2,'0'),d=String(value.getDate()).padStart(2,'0');return `${y}-${m}-${d}`;}
+  if(typeof value==='number'&&window.XLSX?.SSF){const parsed=XLSX.SSF.parse_date_code(value);if(parsed)return `${String(parsed.y).padStart(4,'0')}-${String(parsed.m).padStart(2,'0')}-${String(parsed.d).padStart(2,'0')}`;}
+  const text=String(value).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(text))return text.slice(0,10);
+  const m=text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);if(m){let y=Number(m[3]);if(y<100)y+=2000;return `${String(y).padStart(4,'0')}-${String(Number(m[2])).padStart(2,'0')}-${String(Number(m[1])).padStart(2,'0')}`;}
+  return '';
+}
+function permissionFromExcel(value){const v=normalizeHeader(value).toUpperCase();if(['SI','ENTREGADO','TRUE','1'].includes(v))return 'ENTREGADO';if(['NO','NO ENTREGADO','FALSE','0'].includes(v))return 'NO ENTREGADO';return 'PENDIENTE';}
+async function importExcel(event){
+  const file=event.target.files?.[0];event.target.value='';if(!file)return;
+  if(typeof XLSX==='undefined'){alert('No se pudo cargar el lector de Excel. Verificá tu conexión a Internet e intentá nuevamente.');return;}
+  try{
+    const workbook=XLSX.read(await file.arrayBuffer(),{cellDates:true});
+    const hasNonTemplate=workbook.SheetNames.some(n=>normalizeHeader(n)!=='plantilla');
+    const imported=[];
+    for(const sheetName of workbook.SheetNames){
+      if(hasNonTemplate&&normalizeHeader(sheetName)==='plantilla')continue;
+      const ws=workbook.Sheets[sheetName];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+      let headerRow=-1,nameIdx=-1,expiryIdx=-1,permissionIdx=-1;
+      for(let r=0;r<Math.min(rows.length,10);r++){
+        const headers=(rows[r]||[]).map(normalizeHeader);
+        const ni=headers.indexOf('nombre');
+        if(ni>=0){headerRow=r;nameIdx=ni;expiryIdx=headers.indexOf('vencimiento');permissionIdx=headers.indexOf('permiso');break;}
+      }
+      if(headerRow<0)continue;
+      const students=[];
+      for(let r=headerRow+1;r<rows.length;r++){
+        const row=rows[r]||[];const name=String(row[nameIdx]??'').trim();if(!name)continue;
+        students.push({id:uid(),name:name.slice(0,120),expiry:expiryIdx>=0?excelDateToISO(row[expiryIdx]):'',permission:permissionIdx>=0?permissionFromExcel(row[permissionIdx]):'PENDIENTE'});
+      }
+      if(students.length)imported.push({id:uid(),name:(String(sheetName).trim().slice(0,60)||'Grupo'),students});
+    }
+    if(!imported.length){alert('No encontré hojas con una columna “Nombre” y alumnos para importar.');return;}
+    const total=imported.reduce((n,g)=>n+g.students.length,0);
+    let mode='add';
+    if(state.groups.length){
+      const choice=prompt(`Ya tenés ${state.groups.length} grupo(s) guardado(s).\n\nEscribí A para AGREGAR los grupos del Excel sin borrar los actuales.\nEscribí R para REEMPLAZAR todos los datos actuales por los del Excel.`, 'A');
+      if(choice===null)return;
+      const c=choice.trim().toUpperCase();
+      if(c!=='A'&&c!=='R'){alert('Importación cancelada. Escribí A para agregar o R para reemplazar.');return;}
+      mode=c==='R'?'replace':'add';
+    }
+    const action=mode==='replace'?'REEMPLAZARÁN los datos actuales':'AGREGARÁN a los datos actuales';
+    if(!confirm(`Se ${action}: ${imported.length} grupo(s) y ${total} alumno(s).\n\nSe leerán Nombre, Vencimiento y Permiso. La Cédula, Días y Estado no se importarán.\n\n¿Continuar?`))return;
+    if(mode==='replace'){
+      state={version:1,groups:imported};
+    }else{
+      imported.forEach(g=>{g.name=uniqueGroupName(g.name);state.groups.push(g);});
+    }
+    save();renderGroups();
+    alert(`Excel importado correctamente: ${imported.length} grupo(s), ${total} alumno(s).`);
+  }catch(e){console.error(e);alert('No se pudo leer el Excel. Verificá que sea un archivo .xlsx o .xls válido.');}
+}
+
+document.getElementById('new-group').addEventListener('keydown',e=>{if(e.key==='Enter')createGroup();});
+renderGroups();
+</script>
+</body>
+</html>
