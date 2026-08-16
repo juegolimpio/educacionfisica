@@ -82,11 +82,11 @@ console.log('✓ Sintaxis JavaScript válida');
   const code = extractFunction('tfAllScoresComplete');
   const c = run(code, { tfScores:{} });
   const rounds=[[{a:'A',b:'B'}]];
-  assert(c.tfAllScoresComplete(rounds,'g1')===false, 'Grupo incompleto debe bloquear final');
+  assert(c.tfAllScoresComplete(rounds,'g1_')===false, 'Grupo incompleto debe bloquear final');
   c.tfScores.g1_0_0={a:'1',b:'0'};
-  assert(c.tfAllScoresComplete(rounds,'g1')===true, 'Grupo completo debe habilitar final');
-  assert(html.includes("const gruposCompletos = tfAllScoresComplete(d.group1,'g1') && tfAllScoresComplete(d.group2,'g2');"), 'El render de liguilla debe usar el bloqueo por grupos completos');
-  console.log('✓ Bloqueo de final de liguilla');
+  assert(c.tfAllScoresComplete(rounds,'g1_')===true, 'Grupo completo debe habilitar final');
+  assert(html.includes("const gruposCompletos = tfAllScoresComplete(d.group1,'g1_') && tfAllScoresComplete(d.group2,'g2_');"), 'El render de liguilla debe usar los prefijos correctos');
+  console.log('✓ Bloqueo de final de liguilla y prefijos correctos');
 }
 
 console.log('\nTODAS LAS PRUEBAS FUNCIONALES PASARON');
