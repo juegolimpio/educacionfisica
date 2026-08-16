@@ -1612,6 +1612,7 @@ let tfSelectedFormat = '';
 let tfFixture = null;
 let tfScores = {};
 let tfFairPlay = {}; // Guardará { matchKey: { a: 1-5, b: 1-5 } }
+let tfElimAdvance = {}; // Desempates manuales: { matchKey: 'a' | 'b' }
 let tfShowStandings = false;
 let tfShowReport = false;
 let tfTorneoName = '';
@@ -1652,6 +1653,7 @@ function tfSaveState() {
       fixture:tfFixture, 
       scores:tfScores, 
       fairPlay: tfFairPlay,
+      elimAdvance: tfElimAdvance,
       showStandings:tfShowStandings, 
       showReport:tfShowReport, 
       torneoName:tfTorneoName 
@@ -1676,6 +1678,7 @@ function tfLoadState() {
     tfFixture = s.fixture; 
     tfScores = s.scores || {};
     tfFairPlay = s.fairPlay || {};
+    tfElimAdvance = s.elimAdvance || {};
     tfShowStandings = s.showStandings || false; 
     tfShowReport = s.showReport || false;
     tfTorneoName = s.torneoName || '';
@@ -1687,7 +1690,7 @@ function tfClearAndReset() {
   if (!confirm('¿Seguro que querés terminar este campeonato y empezar uno nuevo? Se borrarán todos los datos.')) return;
   localStorage.removeItem(TF_SK);
   tfTeams = ['','','','']; tfSelectedFormat = ''; tfFixture = null;
-  tfScores = {}; tfFairPlay = {}; tfShowStandings = false; tfShowReport = false; tfTorneoName = '';
+  tfScores = {}; tfFairPlay = {}; tfElimAdvance = {}; tfShowStandings = false; tfShowReport = false; tfTorneoName = '';
   document.getElementById('tf-restored').style.display = 'none';
   document.getElementById('tf-setup-area').style.display = '';
   document.getElementById('tf-fixture-area').innerHTML = '';
@@ -1701,6 +1704,12 @@ function tfShowValidationMsg(msg) {
   const el = document.getElementById('tf-validation-msg');
   el.textContent = msg; el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3500);
+}
+
+function tfEsc(v) {
+  return String(v ?? '').replace(/[&<>\"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  })[ch]);
 }
 
 function tfHandleScoreInput(el, key, side) {
@@ -1721,7 +1730,7 @@ function tfShuffle(arr) {
 function tfRenderTeams() {
   document.getElementById('tf-teams-list').innerHTML = tfTeams.map((t, i) => `
     <div class="tf-team-row">
-      <input type="text" class="tf-input" placeholder="Equipo ${i+1}" value="${t.replace(/"/g,'&quot;')}" oninput="tfTeams[${i}]=this.value;tfScheduleSave();" maxlength="30">
+      <input type="text" class="tf-input" placeholder="Equipo ${i+1}" value="${tfEsc(t)}" oninput="tfTeams[${i}]=this.value;tfScheduleSave();" maxlength="30">
       ${tfTeams.length > 2 ? `<button class="tf-icon-btn" onclick="tfRemoveTeam(${i})" title="Quitar equipo"><i class="ti ti-x"></i></button>` : ''}
     </div>`).join('');
 }
@@ -1763,8 +1772,19 @@ function tfGenerateLiguilla(ts) {
   return { group1:tfGenerateRoundRobin(s.slice(0,half)), group2:tfGenerateRoundRobin(s.slice(half)), g1teams:s.slice(0,half), g2teams:s.slice(half) };
 }
 function tfGenerateElim(ts) {
-  let b=tfShuffle(ts); const rounds=[];
-  while(b.length>1){ const r=[]; for(let i=0;i<b.length;i+=2) if(i+1<b.length) r.push({a:b[i],b:b[i+1]}); rounds.push(r); b=r.map(()=>'?'); }
+  const teams = tfShuffle(ts);
+  const size = 2 ** Math.ceil(Math.log2(teams.length));
+  const byes = size - teams.length;
+  const first = [];
+  let idx = 0;
+  for(let i=0;i<byes;i++) first.push({a:teams[idx++], b:'BYE'});
+  while(idx < teams.length) first.push({a:teams[idx++], b:teams[idx++]});
+  const rounds=[first];
+  let count = first.length;
+  while(count > 1) {
+    count = count / 2;
+    rounds.push(Array.from({length:count}, () => ({a:'Por definir', b:'Por definir'})));
+  }
   return rounds;
 }
 
@@ -1776,7 +1796,7 @@ function tfGenerate() {
   const uniq = new Set(filled.map(t=>t.trim().toLowerCase()));
   if (uniq.size < filled.length) return tfShowValidationMsg('Hay equipos con el mismo nombre.');
   tfTorneoName = document.getElementById('tf-torneo-name').value;
-  tfScores={}; tfFairPlay={}; tfShowStandings=false; tfShowReport=false;
+  tfScores={}; tfFairPlay={}; tfElimAdvance={}; tfShowStandings=false; tfShowReport=false;
   
   if(tfSelectedFormat==='todos')       tfFixture={type:'todos',rounds:tfGenerateRoundRobin(ts),teams:ts};
   else if(tfSelectedFormat==='liguilla') tfFixture={type:'liguilla',data:tfGenerateLiguilla(ts),teams:ts};
@@ -1788,48 +1808,75 @@ function tfGenerate() {
 function tfSetScore(key,side,val) {
   if(!tfScores[key]) tfScores[key]={a:'',b:''};
   tfScores[key][side]=val;
+  if(key.startsWith('g1_') || key.startsWith('g2_')) {
+    delete tfScores['final_0'];
+    delete tfFairPlay['final_0'];
+  }
+  if(key.startsWith('elim_')) {
+    const sc = tfScores[key];
+    if(sc.a!=='' && sc.b!=='' && parseInt(sc.a)!==parseInt(sc.b)) delete tfElimAdvance[key];
+  }
   if(tfFixture&&tfFixture.type==='eliminacion') tfUpdateElimWinners();
   tfScheduleSave();
   if(tfShowStandings||tfShowReport) tfRenderFixture();
 }
 
 function tfSetFairPlay(key, side, stars) {
-  if(!tfFairPlay[key]) tfFairPlay[key] = {a: 5, b: 5};
+  if(!tfFairPlay[key]) tfFairPlay[key] = {a: null, b: null};
   tfFairPlay[key][side] = stars;
   tfScheduleSave();
   tfRenderFixture();
 }
 
+function tfSetElimWinner(key, side) {
+  tfElimAdvance[key] = side;
+  tfUpdateElimWinners();
+  tfScheduleSave();
+}
+
 function tfMatchHtml(a, b, key, label) {
   const sc = tfScores[key] || {a:'', b:''};
-  const fp = tfFairPlay[key] || {a: 5, b: 5};
-  
-  // Render de estrellas para Fair Play (Equipo A y B)
-  const starsA = [1,2,3,4,5].map(num => `
-    <span class="tf-star ${num <= fp.a ? 'active' : ''}" onclick="tfSetFairPlay('${key}','a', ${num})">★</span>
-  `).join('');
-  
-  const starsB = [1,2,3,4,5].map(num => `
-    <span class="tf-star ${num <= fp.b ? 'active' : ''}" onclick="tfSetFairPlay('${key}','b', ${num})">★</span>
-  `).join('');
+  const fp = tfFairPlay[key] || {a: null, b: null};
+  const ea = tfEsc(a), eb = tfEsc(b), el = tfEsc(label);
+  const isBye = a === 'BYE' || b === 'BYE';
+  const isPending = a === 'Por definir' || b === 'Por definir';
+
+  if(isBye) {
+    const winner = a === 'BYE' ? b : a;
+    return `<div class="tf-match-card-wrapper"><div class="tf-match-card">
+      <span class="tf-match-num">${el}</span><span class="tf-team-a">${tfEsc(winner)}</span>
+      <span class="tf-vs">—</span><span class="tf-team-b">Pase libre</span>
+    </div></div>`;
+  }
+
+  const starsA = [1,2,3,4,5].map(num => `<span class="tf-star ${Number.isInteger(fp.a) && num <= fp.a ? 'active' : ''}" onclick="tfSetFairPlay('${key}','a',${num})">★</span>`).join('');
+  const starsB = [1,2,3,4,5].map(num => `<span class="tf-star ${Number.isInteger(fp.b) && num <= fp.b ? 'active' : ''}" onclick="tfSetFairPlay('${key}','b',${num})">★</span>`).join('');
+  const tied = key.startsWith('elim_') && sc.a!=='' && sc.b!=='' && parseInt(sc.a)===parseInt(sc.b);
+  const tieControls = tied ? `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);font-size:12px;">
+    <span style="color:var(--tf-amber-text);font-weight:700;">Empate: elegí quién clasifica tras el desempate:</span>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+      <button class="tf-sec-btn" onclick="tfSetElimWinner('${key}','a')">Clasifica ${ea}</button>
+      <button class="tf-sec-btn" onclick="tfSetElimWinner('${key}','b')">Clasifica ${eb}</button>
+    </div></div>` : '';
 
   return `
   <div class="tf-match-card-wrapper">
     <div class="tf-match-card">
-      <span class="tf-match-num">${label}</span>
-      <span class="tf-team-a">${a}</span>
+      <span class="tf-match-num">${el}</span>
+      <span class="tf-team-a">${ea}</span>
       <span class="tf-vs">vs</span>
-      <span class="tf-team-b">${b}</span>
+      <span class="tf-team-b">${eb}</span>
       <div class="tf-score-wrap">
-        <input type="number" class="tf-score" min="0" max="99" value="${sc.a}" placeholder="-" oninput="tfHandleScoreInput(this,'${key}','a')">
+        <input type="number" class="tf-score" min="0" max="99" value="${tfEsc(sc.a)}" placeholder="-" ${isPending?'disabled':''} oninput="tfHandleScoreInput(this,'${key}','a')">
         <span class="tf-score-sep">:</span>
-        <input type="number" class="tf-score" min="0" max="99" value="${sc.b}" placeholder="-" oninput="tfHandleScoreInput(this,'${key}','b')">
+        <input type="number" class="tf-score" min="0" max="99" value="${tfEsc(sc.b)}" placeholder="-" ${isPending?'disabled':''} oninput="tfHandleScoreInput(this,'${key}','b')">
       </div>
     </div>
-    <div class="tf-fp-eval">
-      <div class="tf-fp-label"><span>🤝 Fair Play ${a}:</span> <div class="tf-stars-container">${starsA}</div></div>
-      <div class="tf-fp-label"><span>🤝 Fair Play ${b}:</span> <div class="tf-stars-container">${starsB}</div></div>
-    </div>
+    ${!isPending ? `<div class="tf-fp-eval">
+      <div class="tf-fp-label"><span>🤝 Fair Play ${ea}: ${Number.isInteger(fp.a)?'':'Sin evaluar'}</span> <div class="tf-stars-container">${starsA}</div></div>
+      <div class="tf-fp-label"><span>🤝 Fair Play ${eb}: ${Number.isInteger(fp.b)?'':'Sin evaluar'}</span> <div class="tf-stars-container">${starsB}</div></div>
+    </div>` : ''}
+    ${tieControls}
   </div>`;
 }
 
@@ -1841,7 +1888,7 @@ function tfCalcStandings(ts, rounds, prefix) {
   rounds.forEach((round, r) => round.forEach((m, i) => {
     const key = `${prefix}${r}_${i}`;
     const sc = tfScores[key];
-    const fp = tfFairPlay[key] || { a: 5, b: 5 };
+    const fp = tfFairPlay[key] || { a: null, b: null };
     
     if(!sc || sc.a==='' || sc.b==='') return;
     const ga = parseInt(sc.a), gb = parseInt(sc.b);
@@ -1851,11 +1898,9 @@ function tfCalcStandings(ts, rounds, prefix) {
     pts[m.a].gf += ga; pts[m.a].gc += gb;
     pts[m.b].gf += gb; pts[m.b].gc += ga;
     
-    // Suma de Fair Play
-    pts[m.a].fpScoreSum += (fp.a || 5);
-    pts[m.a].fpMatchesCount++;
-    pts[m.b].fpScoreSum += (fp.b || 5);
-    pts[m.b].fpMatchesCount++;
+    // Suma de Fair Play solo cuando existe valoración explícita.
+    if(Number.isInteger(fp.a)) { pts[m.a].fpScoreSum += fp.a; pts[m.a].fpMatchesCount++; }
+    if(Number.isInteger(fp.b)) { pts[m.b].fpScoreSum += fp.b; pts[m.b].fpMatchesCount++; }
     
     if(ga > gb){ pts[m.a].pts += 3; pts[m.a].g++; pts[m.b].p++; }
     else if(ga < gb){ pts[m.b].pts += 3; pts[m.b].g++; pts[m.a].p++; }
@@ -1866,7 +1911,7 @@ function tfCalcStandings(ts, rounds, prefix) {
     if(pts[b].pts !== pts[a].pts) return pts[b].pts - pts[a].pts;
     return (pts[b].gf - pts[b].gc) - (pts[a].gf - pts[a].gc);
   }).map(t => {
-    const avgFP = pts[t].fpMatchesCount > 0 ? (pts[t].fpScoreSum / pts[t].fpMatchesCount).toFixed(1) : "5.0";
+    const avgFP = pts[t].fpMatchesCount > 0 ? (pts[t].fpScoreSum / pts[t].fpMatchesCount).toFixed(1) : null;
     return { name: t, ...pts[t], fpAvg: avgFP };
   });
 }
@@ -1896,14 +1941,14 @@ function tfStandingsTableHtml(ts, rounds, prefix) {
     h += `
     <tr ${i===0?'class="leader"':''}>
       <td class="tf-td-c">${i+1}</td>
-      <td><strong>${p.name}</strong></td>
+      <td><strong>${tfEsc(p.name)}</strong></td>
       <td class="tf-td-c">${p.j}</td>
       <td class="tf-td-c">${p.g}</td>
       <td class="tf-td-c">${p.e}</td>
       <td class="tf-td-c">${p.p}</td>
       <td class="tf-td-c">${p.gf}</td>
       <td class="tf-td-c">${p.gc}</td>
-      <td class="tf-td-c" style="color: #ffb800">★ ${p.fpAvg}</td>
+      <td class="tf-td-c" style="color: #ffb800">${p.fpAvg ? '★ '+p.fpAvg : 'Sin evaluar'}</td>
       <td class="tf-td-c"><strong>${p.pts}</strong></td>
     </tr>`; 
   });
@@ -1913,7 +1958,7 @@ function tfStandingsTableHtml(ts, rounds, prefix) {
 // Tabla de Fair Play
 function tfFairPlayTableHtml(ts, rounds, prefix) {
   const sorted = tfCalcStandings(ts, rounds, prefix)
-                 .sort((a,b) => parseFloat(b.fpAvg) - parseFloat(a.fpAvg));
+                 .sort((a,b) => (b.fpAvg===null?-1:parseFloat(b.fpAvg)) - (a.fpAvg===null?-1:parseFloat(a.fpAvg)));
                  
   let h = `
   <div style="margin-top:1.5rem"></div>
@@ -1935,14 +1980,21 @@ function tfFairPlayTableHtml(ts, rounds, prefix) {
     h += `
     <tr ${i===0?'style="background: rgba(255,184,0,0.06)"':''}>
       <td class="tf-td-c">${i+1}</td>
-      <td><strong>${p.name}</strong></td>
+      <td><strong>${tfEsc(p.name)}</strong></td>
       <td class="tf-td-c">${p.fpMatchesCount}</td>
       <td class="tf-td-c" style="font-weight:bold; color: #ffb800">
-        ★ ${p.fpAvg} / 5.0
+        ${p.fpAvg ? '★ '+p.fpAvg+' / 5.0' : 'Sin evaluar'}
       </td>
     </tr>`; 
   });
   return h + '</tbody></table></div>';
+}
+
+function tfAllScoresComplete(rounds, prefix) {
+  return rounds.every((round,r) => round.every((m,i) => {
+    const sc = tfScores[`${prefix}${r}_${i}`];
+    return sc && sc.a !== '' && sc.b !== '';
+  }));
 }
 
 function tfGetLider(ts, rounds, prefix) {
@@ -1969,9 +2021,9 @@ function tfBuildReport() {
       txt += `\n[Fecha ${r+1}]\n`;
       round.forEach((m,i) => {
         const sc = tfScores[`r${r}_${i}`] || {};
-        const fp = tfFairPlay[`r${r}_${i}`] || {a:5, b:5};
+        const fp = tfFairPlay[`r${r}_${i}`] || {a:null, b:null};
         txt += `  ${m.a} (${sc.a!==''&&sc.a!==undefined?sc.a:'-'}) vs (${sc.b!==''&&sc.b!==undefined?sc.b:'-'}) ${m.b}\n`;
-        txt += `  └─ Fair Play 🤝: ${m.a} (★ ${fp.a}/5) | ${m.b} (★ ${fp.b}/5)\n\n`;
+        txt += `  └─ Fair Play 🤝: ${m.a} (${Number.isInteger(fp.a)?'★ '+fp.a+'/5':'Sin evaluar'}) | ${m.b} (${Number.isInteger(fp.b)?'★ '+fp.b+'/5':'Sin evaluar'})\n\n`;
       });
     });
     txt += `\n── CLASIFICACIÓN DEPORTIVA FINAL ──\n`;
@@ -1980,34 +2032,34 @@ function tfBuildReport() {
     });
     
     txt += `\n── VALORACIÓN Y DESEMPEÑO FAIR PLAY ──\n`;
-    const fpSorted = tfCalcStandings(tfFixture.teams,tfFixture.rounds,'r').sort((a,b)=>parseFloat(b.fpAvg)-parseFloat(a.fpAvg));
+    const fpSorted = tfCalcStandings(tfFixture.teams,tfFixture.rounds,'r').sort((a,b)=>(b.fpAvg===null?-1:parseFloat(b.fpAvg))-(a.fpAvg===null?-1:parseFloat(a.fpAvg)));
     fpSorted.forEach((p,i) => {
-      txt += `  ${i+1}. ${p.name.padEnd(16)} — Promedio Conducta: ★ ${p.fpAvg} / 5.0\n`;
+      txt += `  ${i+1}. ${p.name.padEnd(16)} — ${p.fpAvg ? 'Promedio Conducta: ★ '+p.fpAvg+' / 5.0' : 'Sin evaluar'}\n`;
     });
     
   } else if(tfFixture.type==='liguilla') {
     const d = tfFixture.data;
-    txt += `\n[Grupo A]: ${d.g1teams.join(', ')}\n`;
+    txt += `\n[Grupo A]: ${d.g1teams.map(tfEsc).join(', ')}\n`;
     d.group1.forEach((round,r)=>{
       txt += `  Fecha ${r+1}\n`;
       round.forEach((m,i)=>{
         const sc=tfScores[`g1_${r}_${i}`]||{};
-        txt += `    ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;
+        txt += `    ${m.a} ${sc.a!==''&&sc.a!==undefined?sc.a:'-'} : ${sc.b!==''&&sc.b!==undefined?sc.b:'-'} ${m.b}\n`;
       });
     });
-    txt += `\n[Grupo B]: ${d.g2teams.join(', ')}\n`;
+    txt += `\n[Grupo B]: ${d.g2teams.map(tfEsc).join(', ')}\n`;
     d.group2.forEach((round,r)=>{
       txt += `  Fecha ${r+1}\n`;
       round.forEach((m,i)=>{
         const sc=tfScores[`g2_${r}_${i}`]||{};
-        txt += `    ${m.a} ${sc.a||'-'} : ${sc.b||'-'} ${m.b}\n`;
+        txt += `    ${m.a} ${sc.a!==''&&sc.a!==undefined?sc.a:'-'} : ${sc.b!==''&&sc.b!==undefined?sc.b:'-'} ${m.b}\n`;
       });
     });
-    const lA=tfGetLider(d.g1teams,d.group1,'g1');
-    const lB=tfGetLider(d.g2teams,d.group2,'g2');
+    const lA=tfGetLider(d.g1teams,d.group1,'g1_');
+    const lB=tfGetLider(d.g2teams,d.group2,'g2_');
     const fsc=tfScores['final_0']||{};
     txt += `\n🏆 Gran Final del Torneo:\n`;
-    txt += `  ${lA} ${fsc.a||'-'} : ${fsc.b||'-'} ${lB}\n`;
+    txt += `  ${lA} ${fsc.a!==''&&fsc.a!==undefined?fsc.a:'-'} : ${fsc.b!==''&&fsc.b!==undefined?fsc.b:'-'} ${lB}\n`;
   } else {
     tfFixture.rounds.forEach((round,r)=>{
       const names=['Octavos','Cuartos de final','Semifinal','Final'];
@@ -2015,7 +2067,7 @@ function tfBuildReport() {
       txt += `\n[${name}]\n`;
       round.forEach((m,i)=>{
         const sc=tfScores[`elim_${r}_${i}`]||{};
-        txt += `  ${m.a} ${sc.a||'-'} vs ${sc.b||'-'} ${m.b}\n`;
+        txt += `  ${m.a} ${sc.a!==''&&sc.a!==undefined?sc.a:'-'} vs ${sc.b!==''&&sc.b!==undefined?sc.b:'-'} ${m.b}\n`;
       });
     });
   }
@@ -2059,7 +2111,7 @@ function tfFooterBtns() {
   }
   
   if(tfShowReport){
-    h += `<div class="tf-report-box" id="tf-report-text">${tfBuildReport()}</div>`;
+    h += `<div class="tf-report-box" id="tf-report-text">${tfEsc(tfBuildReport())}</div>`;
     h += `
     <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
       <button class="tf-report-btn" onclick="tfCopyReport()"><i class="ti ti-copy"></i> Copiar Informe</button>
@@ -2079,7 +2131,7 @@ function tfRenderFixture() {
 }
 
 function tfRenderTodos(area) {
-  let h = `<p class="tf-section-header">${tfTorneoName||'Campeonato Escolar'}</p>`;
+  let h = `<p class="tf-section-header">${tfEsc(tfTorneoName||'Campeonato Escolar')}</p>`;
   tfFixture.rounds.forEach((round,r) => {
     h += `<p class="tf-section-title">Fecha ${r+1}</p>`;
     round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `r${r}_${i}`, `${r+1}.${i+1}`));
@@ -2090,28 +2142,33 @@ function tfRenderTodos(area) {
 
 function tfRenderLiguilla(area) {
   const d = tfFixture.data;
-  let h = `<p class="tf-section-header">${tfTorneoName||'Campeonato Escolar'}</p>`;
-  h += `<span class="tf-phase-badge">Fase 1 — Grupo A (${d.g1teams.join(', ')})</span>`;
+  let h = `<p class="tf-section-header">${tfEsc(tfTorneoName||'Campeonato Escolar')}</p>`;
+  h += `<span class="tf-phase-badge">Fase 1 — Grupo A (${d.g1teams.map(tfEsc).join(', ')})</span>`;
   d.group1.forEach((round, r) => {
     h += `<p class="tf-section-title">Fecha ${r+1}</p>`;
     round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `g1_${r}_${i}`, `A${r+1}.${i+1}`));
   });
-  h += `<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge">Fase 1 — Grupo B (${d.g2teams.join(', ')})</span>`;
+  h += `<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge">Fase 1 — Grupo B (${d.g2teams.map(tfEsc).join(', ')})</span>`;
   d.group2.forEach((round, r) => {
     h += `<p class="tf-section-title">Fecha ${r+1}</p>`;
     round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `g2_${r}_${i}`, `B${r+1}.${i+1}`));
   });
   
-  const lA = tfGetLider(d.g1teams, d.group1, 'g1');
-  const lB = tfGetLider(d.g2teams, d.group2, 'g2');
+  const gruposCompletos = tfAllScoresComplete(d.group1,'g1_') && tfAllScoresComplete(d.group2,'g2_');
   h += `<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge final">Gran Final</span>`;
-  h += tfMatchHtml(lA, lB, 'final_0', 'Final');
-  const fsc = tfScores['final_0'];
-  if(fsc && fsc.a!=='' && fsc.b!=='') {
-    const ga = parseInt(fsc.a), gb = parseInt(fsc.b);
-    if(!isNaN(ga) && !isNaN(gb) && ga!==gb) {
-      h += `<div class="tf-winner-banner"><i class="ti ti-trophy"></i> Campeón Deportivo: ${ga>gb?lA:lB}</div>`;
+  if(gruposCompletos) {
+    const lA = tfGetLider(d.g1teams, d.group1, 'g1_');
+    const lB = tfGetLider(d.g2teams, d.group2, 'g2_');
+    h += tfMatchHtml(lA, lB, 'final_0', 'Final');
+    const fsc = tfScores['final_0'];
+    if(fsc && fsc.a!=='' && fsc.b!=='') {
+      const ga = parseInt(fsc.a), gb = parseInt(fsc.b);
+      if(!isNaN(ga) && !isNaN(gb) && ga!==gb) {
+        h += `<div class="tf-winner-banner"><i class="ti ti-trophy"></i> Campeón Deportivo: ${tfEsc(ga>gb?lA:lB)}</div>`;
+      }
     }
+  } else {
+    h += `<div class="tf-info-box">Completá todos los resultados de los grupos para habilitar la final.</div>`;
   }
   h += tfFooterBtns(); 
   area.innerHTML = h;
@@ -2119,7 +2176,7 @@ function tfRenderLiguilla(area) {
 
 function tfRenderElim(area) {
   const names = ['Octavos', 'Cuartos de final', 'Semifinal', 'Final'];
-  let h = `<p class="tf-section-header">${tfTorneoName||'Campeonato'}</p>`;
+  let h = `<p class="tf-section-header">${tfEsc(tfTorneoName||'Campeonato')}</p>`;
   tfFixture.rounds.forEach((round, r) => {
     const name = names[Math.max(0, names.length - tfFixture.rounds.length + r)] || `Ronda ${r+1}`;
     h += `<span class="tf-phase-badge">${name}</span>`;
@@ -2140,28 +2197,28 @@ function tfRenderElim(area) {
   area.innerHTML = h;
 }
 
+function tfElimWinner(match, key) {
+  if(match.a === 'BYE') return match.b;
+  if(match.b === 'BYE') return match.a;
+  if(match.a === 'Por definir' || match.b === 'Por definir') return null;
+  const sc = tfScores[key];
+  if(!sc || sc.a==='' || sc.b==='') return null;
+  const ga=parseInt(sc.a), gb=parseInt(sc.b);
+  if(isNaN(ga)||isNaN(gb)) return null;
+  if(ga>gb) return match.a;
+  if(gb>ga) return match.b;
+  return tfElimAdvance[key] === 'a' ? match.a : tfElimAdvance[key] === 'b' ? match.b : null;
+}
+
 function tfUpdateElimWinners() {
-  tfFixture.rounds.forEach((round, r) => {
-    if(r===0) return;
-    round.forEach((m, i) => {
-      const pr = tfFixture.rounds[r-1];
-      const pA = pr[i*2], pB = pr[i*2+1];
-      if(pA) {
-        const sc = tfScores[`elim_${r-1}_${i*2}`];
-        if(sc && sc.a!=='' && sc.b!=='') {
-          const ga = parseInt(sc.a), gb = parseInt(sc.b);
-          if(!isNaN(ga) && !isNaN(gb)) m.a = ga>=gb ? pA.a : pA.b;
-        }
-      }
-      if(pB) {
-        const sc = tfScores[`elim_${r-1}_${i*2+1}`];
-        if(sc && sc.a!=='' && sc.b!=='') {
-          const ga = parseInt(sc.a), gb = parseInt(sc.b);
-          if(!isNaN(ga) && !isNaN(gb)) m.b = ga>=gb ? pB.a : pB.b;
-        }
-      }
+  for(let r=1; r<tfFixture.rounds.length; r++) {
+    const prev=tfFixture.rounds[r-1];
+    tfFixture.rounds[r].forEach((m,i) => {
+      const pA=prev[i*2], pB=prev[i*2+1];
+      m.a = pA ? (tfElimWinner(pA, 'elim_'+(r-1)+'_'+(i*2)) || 'Por definir') : 'Por definir';
+      m.b = pB ? (tfElimWinner(pB, 'elim_'+(r-1)+'_'+(i*2+1)) || 'Por definir') : 'Por definir';
     });
-  });
+  }
   tfRenderFixture();
 }
 </script>
