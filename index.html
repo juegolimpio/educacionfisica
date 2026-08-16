@@ -2055,8 +2055,8 @@ function tfBuildReport() {
         txt += `    ${m.a} ${sc.a!==''&&sc.a!==undefined?sc.a:'-'} : ${sc.b!==''&&sc.b!==undefined?sc.b:'-'} ${m.b}\n`;
       });
     });
-    const lA=tfGetLider(d.g1teams,d.group1,'g1');
-    const lB=tfGetLider(d.g2teams,d.group2,'g2');
+    const lA=tfGetLider(d.g1teams,d.group1,'g1_');
+    const lB=tfGetLider(d.g2teams,d.group2,'g2_');
     const fsc=tfScores['final_0']||{};
     txt += `\n🏆 Gran Final del Torneo:\n`;
     txt += `  ${lA} ${fsc.a!==''&&fsc.a!==undefined?fsc.a:'-'} : ${fsc.b!==''&&fsc.b!==undefined?fsc.b:'-'} ${lB}\n`;
@@ -2154,11 +2154,11 @@ function tfRenderLiguilla(area) {
     round.forEach((m,i) => h += tfMatchHtml(m.a, m.b, `g2_${r}_${i}`, `B${r+1}.${i+1}`));
   });
   
-  const gruposCompletos = tfAllScoresComplete(d.group1,'g1') && tfAllScoresComplete(d.group2,'g2');
+  const gruposCompletos = tfAllScoresComplete(d.group1,'g1_') && tfAllScoresComplete(d.group2,'g2_');
   h += `<div style="margin-top:1.5rem;"></div><span class="tf-phase-badge final">Gran Final</span>`;
   if(gruposCompletos) {
-    const lA = tfGetLider(d.g1teams, d.group1, 'g1');
-    const lB = tfGetLider(d.g2teams, d.group2, 'g2');
+    const lA = tfGetLider(d.g1teams, d.group1, 'g1_');
+    const lB = tfGetLider(d.g2teams, d.group2, 'g2_');
     h += tfMatchHtml(lA, lB, 'final_0', 'Final');
     const fsc = tfScores['final_0'];
     if(fsc && fsc.a!=='' && fsc.b!=='') {
