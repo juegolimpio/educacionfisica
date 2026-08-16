@@ -1,3 +1,4 @@
+// one-time liguilla prefix repair
 const fs=require('fs');
 const p='index.html';
 let s=fs.readFileSync(p,'utf8');
