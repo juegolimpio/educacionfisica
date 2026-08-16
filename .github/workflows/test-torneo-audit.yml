@@ -1,0 +1,21 @@
+name: Test Torneo Facil audit branch
+
+on:
+  push:
+    branches:
+      - fix/torneo-facil-auditoria
+    paths:
+      - scripts/test-torneo-audit.js
+
+permissions:
+  contents: read
+
+jobs:
+  functional-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/torneo-facil-auditoria
+      - name: Run functional tests
+        run: node scripts/test-torneo-audit.js
