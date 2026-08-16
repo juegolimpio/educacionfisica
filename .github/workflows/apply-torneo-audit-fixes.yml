@@ -1,0 +1,39 @@
+name: Apply Torneo Facil audit fixes
+
+on:
+  push:
+    branches:
+      - fix/torneo-facil-auditoria
+    paths:
+      - scripts/fix-torneo.js
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fixes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/torneo-facil-auditoria
+
+      - name: Apply audited fixes
+        run: node scripts/fix-torneo.js
+
+      - name: Validate diff
+        run: git diff --check
+
+      - name: Commit patched index
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix Torneo Facil audit findings"
+          git push
