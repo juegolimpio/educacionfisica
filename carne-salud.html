@@ -14,7 +14,7 @@
 <body>
 <div class="topbar"><button class="back" onclick="location.href='index.html'" aria-label="Volver">←</button><strong>🩺 Carné de salud y permisos</strong></div>
 <div class="app">
-  <div class="warning"><b>Importante:</b> los datos se guardan automáticamente en este navegador. Para no depender de un solo dispositivo, descargá periódicamente un respaldo.</div>
+  <div class="warning"><b>Importante:</b> los datos se guardan automáticamente en este navegador. Para no depender de un solo dispositivo, exportá periódicamente una copia en Excel.</div>
 
   <section id="groups-view">
     <div class="card">
@@ -28,17 +28,13 @@
     </div>
 
     <div class="card">
-      <h2 class="section-title" style="font-size:17px">Respaldo</h2>
-      <p class="muted">El respaldo incluye todos los grupos, alumnos, vencimientos y permisos.</p>
+      <h2 class="section-title" style="font-size:17px">Datos y respaldo</h2>
+      <p class="muted">Los datos se guardan automáticamente en este navegador. Usá Excel para guardar una copia o trasladar tus grupos a otro dispositivo.</p>
       <div class="tools" style="margin-top:12px">
-        <button class="btn" onclick="exportBackup()">💾 Exportar respaldo</button>
         <button class="btn" onclick="exportExcel()">📊 Exportar Excel</button>
-        <button class="btn" onclick="document.getElementById('import-file').click()">📂 Importar respaldo</button>
-        <button class="btn" onclick="document.getElementById('excel-file').click()">📊 Importar Excel</button>
-        <input id="import-file" class="hidden" type="file" accept="application/json,.json" onchange="importBackup(event)">
+        <button class="btn" onclick="document.getElementById('excel-file').click()">📂 Importar Excel</button>
         <input id="excel-file" class="hidden" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="importExcel(event)">
       </div>
-      <div id="backup-meta" class="backup-meta"></div>
     </div>
   </section>
 
@@ -90,7 +86,6 @@
 
 <script>
 const STORAGE_KEY='juegolimpio_carne_salud_v1';
-const BACKUP_KEY='juegolimpio_carne_salud_last_backup';
 let state=loadState();
 let currentGroupId=null;
 
@@ -104,7 +99,7 @@ function getGroup(){return state.groups.find(g=>g.id===currentGroupId)||null;}
 function createGroup(){const input=document.getElementById('new-group');const name=input.value.trim();if(!name)return;state.groups.push({id:uid(),name:name.slice(0,60),students:[]});save();input.value='';renderGroups();}
 function renderGroups(){const box=document.getElementById('groups-list');if(!state.groups.length){box.innerHTML='<p class="muted">Todavía no hay grupos. Creá el primero arriba.</p>';return;}box.innerHTML=state.groups.map(g=>`<div class="group-card"><h3>${esc(g.name)}</h3><div class="group-meta">${g.students.length} alumno${g.students.length===1?'':'s'}</div><button class="btn small primary" onclick="openGroup('${esc(g.id)}')">Abrir</button></div>`).join('');}
 function openGroup(id){currentGroupId=id;document.getElementById('groups-view').classList.add('hidden');document.getElementById('group-view').classList.remove('hidden');document.getElementById('search').value='';document.getElementById('status-filter').value='all';renderCurrentGroup();}
-function showGroups(){currentGroupId=null;document.getElementById('group-view').classList.add('hidden');document.getElementById('groups-view').classList.remove('hidden');renderGroups();renderBackupMeta();}
+function showGroups(){currentGroupId=null;document.getElementById('group-view').classList.add('hidden');document.getElementById('groups-view').classList.remove('hidden');renderGroups();}
 function renameCurrentGroup(){const g=getGroup();if(!g)return;const name=prompt('Nuevo nombre del grupo:',g.name);if(name===null)return;const clean=name.trim();if(!clean)return;g.name=clean.slice(0,60);save();renderCurrentGroup();}
 function deleteCurrentGroup(){const g=getGroup();if(!g)return;if(!confirm(`¿Eliminar “${g.name}”?\n\nSe eliminarán también los datos de sus alumnos.`))return;state.groups=state.groups.filter(x=>x.id!==g.id);save();showGroups();}
 
@@ -150,9 +145,6 @@ function exportExcel(){
   const stamp=new Date().toISOString().slice(0,10);XLSX.writeFile(wb,`juego-limpio-carne-salud-${stamp}.xlsx`);
 }
 
-function exportBackup(){const payload={app:'Juego Limpio - Carné de salud y permisos',version:1,exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');const stamp=new Date().toISOString().slice(0,10);a.href=URL.createObjectURL(blob);a.download=`juego-limpio-carne-salud-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);localStorage.setItem(BACKUP_KEY,new Date().toISOString());renderBackupMeta();}
-function importBackup(event){const file=event.target.files?.[0];event.target.value='';if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=parsed?.data||parsed;if(!Array.isArray(incoming?.groups))throw new Error('Formato inválido');const normalized=normalizeState(incoming);if(!confirm(`Se reemplazarán los datos actuales por el respaldo seleccionado.\n\nGrupos a importar: ${normalized.groups.length}\n\n¿Continuar?`))return;state=normalized;save();showGroups();alert('Respaldo importado correctamente.');}catch(e){alert('No se pudo importar el respaldo. Verificá que sea un archivo generado por Juego Limpio.');}};reader.readAsText(file);}
-
 function normalizeHeader(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();}
 function uniqueGroupName(name){let base=String(name||'Grupo').trim().slice(0,60)||'Grupo';let candidate=base,n=2;const used=new Set(state.groups.map(g=>g.name.toLowerCase()));while(used.has(candidate.toLowerCase()))candidate=`${base} (${n++})`;return candidate.slice(0,60);}
 function excelDateToISO(value){
@@ -188,20 +180,32 @@ async function importExcel(event){
         const row=rows[r]||[];const name=String(row[nameIdx]??'').trim();if(!name)continue;
         students.push({id:uid(),name:name.slice(0,120),expiry:expiryIdx>=0?excelDateToISO(row[expiryIdx]):'',permission:permissionIdx>=0?permissionFromExcel(row[permissionIdx]):'PENDIENTE'});
       }
-      if(students.length)imported.push({id:uid(),name:uniqueGroupName(sheetName),students});
+      if(students.length)imported.push({id:uid(),name:(String(sheetName).trim().slice(0,60)||'Grupo'),students});
     }
     if(!imported.length){alert('No encontré hojas con una columna “Nombre” y alumnos para importar.');return;}
     const total=imported.reduce((n,g)=>n+g.students.length,0);
-    if(!confirm(`Se agregarán ${imported.length} grupo(s) y ${total} alumno(s) desde el Excel.\n\nSe leerán Nombre, Vencimiento y Permiso. La Cédula, Días y Estado no se importarán.\n\n¿Continuar?`))return;
-    state.groups.push(...imported);save();renderGroups();
+    let mode='add';
+    if(state.groups.length){
+      const choice=prompt(`Ya tenés ${state.groups.length} grupo(s) guardado(s).\n\nEscribí A para AGREGAR los grupos del Excel sin borrar los actuales.\nEscribí R para REEMPLAZAR todos los datos actuales por los del Excel.`, 'A');
+      if(choice===null)return;
+      const c=choice.trim().toUpperCase();
+      if(c!=='A'&&c!=='R'){alert('Importación cancelada. Escribí A para agregar o R para reemplazar.');return;}
+      mode=c==='R'?'replace':'add';
+    }
+    const action=mode==='replace'?'REEMPLAZARÁN los datos actuales':'AGREGARÁN a los datos actuales';
+    if(!confirm(`Se ${action}: ${imported.length} grupo(s) y ${total} alumno(s).\n\nSe leerán Nombre, Vencimiento y Permiso. La Cédula, Días y Estado no se importarán.\n\n¿Continuar?`))return;
+    if(mode==='replace'){
+      state={version:1,groups:imported};
+    }else{
+      imported.forEach(g=>{g.name=uniqueGroupName(g.name);state.groups.push(g);});
+    }
+    save();renderGroups();
     alert(`Excel importado correctamente: ${imported.length} grupo(s), ${total} alumno(s).`);
   }catch(e){console.error(e);alert('No se pudo leer el Excel. Verificá que sea un archivo .xlsx o .xls válido.');}
 }
 
-function renderBackupMeta(){const raw=localStorage.getItem(BACKUP_KEY);const el=document.getElementById('backup-meta');if(!raw){el.textContent='Todavía no se registró ningún respaldo descargado.';return;}const d=new Date(raw);el.textContent='Último respaldo descargado desde este navegador: '+d.toLocaleString('es-UY');}
-
 document.getElementById('new-group').addEventListener('keydown',e=>{if(e.key==='Enter')createGroup();});
-renderGroups();renderBackupMeta();
+renderGroups();
 </script>
 </body>
 </html>
