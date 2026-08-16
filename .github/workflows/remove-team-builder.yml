@@ -1,0 +1,46 @@
+name: Remove team builder
+on:
+  push:
+    branches:
+      - chore/quitar-armador-equipos
+    paths:
+      - .github/workflows/remove-team-builder.yml
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chore/quitar-armador-equipos
+      - name: Remove Armador de equipos only
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          block='''    <button class="hbtn" style="border-left:5px solid var(--warn);" onclick="location.href='herramientas.html'">\n      <div class="hicon">👥</div>\n      <div class="hinfo">\n        <strong>Armador de equipos</strong>\n        <span>Sorteo rápido · Grupos equilibrados</span>\n      </div>\n    </button>\n'''
+          if block not in s:
+              raise SystemExit('No se encontró el bloque exacto del Armador de equipos')
+          s=s.replace(block,'',1)
+          p.write_text(s,encoding='utf-8')
+          Path('herramientas.html').unlink()
+      - name: Verify scope
+        shell: bash
+        run: |
+          grep -q 'Tanteador Escolar' index.html
+          grep -q 'Torneo Fácil' index.html
+          grep -q 'Carné de salud y permisos' index.html
+          ! grep -q 'Armador de equipos' index.html
+          test ! -e herramientas.html
+          git diff --check
+      - name: Clean workflow and commit
+        shell: bash
+        run: |
+          rm -f .github/workflows/remove-team-builder.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Remove Armador de equipos"
+          git push
