@@ -88,13 +88,15 @@
 <script>
 const STORAGE_KEY='juegolimpio_carne_salud_v1';
 let state=loadState();
+window.jlGetState=()=>state;
+window.jlReplaceState=next=>{state=normalizeState(next);};
 let currentGroupId=null;
 
 function uid(){return (crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return {version:1,groups:[]};const d=JSON.parse(raw);return normalizeState(d);}catch(e){return {version:1,groups:[]};}}
 function normalizeState(d){const groups=Array.isArray(d?.groups)?d.groups:[];return {version:1,groups:groups.map(g=>({id:String(g.id||uid()),name:String(g.name||'Grupo').slice(0,60),students:(Array.isArray(g.students)?g.students:[]).map(s=>({id:String(s.id||uid()),name:String(s.name||'').slice(0,120),expiry:/^\d{4}-\d{2}-\d{2}$/.test(String(s.expiry||''))?String(s.expiry):'',permission:['PENDIENTE','ENTREGADO','NO ENTREGADO'].includes(s.permission)?s.permission:'PENDIENTE'}))}))};}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));window.jlAfterLocalSave?.();}
 function getGroup(){return state.groups.find(g=>g.id===currentGroupId)||null;}
 
 function createGroup(){const input=document.getElementById('new-group');const name=input.value.trim();if(!name)return;state.groups.push({id:uid(),name:name.slice(0,60),students:[]});save();input.value='';renderGroups();}
@@ -208,5 +210,6 @@ async function importExcel(event){
 document.getElementById('new-group').addEventListener('keydown',e=>{if(e.key==='Enter')createGroup();});
 renderGroups();
 </script>
+<script src="google-sync.js"></script>
 </body>
 </html>
