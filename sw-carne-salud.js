@@ -1,12 +1,15 @@
-const CACHE_NAME='juegolimpio-carne-salud-v1';
-const CORE_ASSETS=['./carne-salud.html','./manifest.webmanifest','./icons/carne-salud.svg'];
-const OPTIONAL_ASSETS=['https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js'];
+const CACHE_NAME='juegolimpio-carne-salud-v2';
+const CORE_ASSETS=[
+  './carne-salud.html',
+  './manifest.webmanifest',
+  './icons/carne-salud.svg',
+  './vendor/xlsx.full.min.js'
+];
 
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{
     const cache=await caches.open(CACHE_NAME);
     await cache.addAll(CORE_ASSETS);
-    await Promise.allSettled(OPTIONAL_ASSETS.map(url=>cache.add(url)));
     await self.skipWaiting();
   })());
 });
@@ -26,7 +29,7 @@ self.addEventListener('fetch',event=>{
     if(cached)return cached;
     try{
       const response=await fetch(event.request);
-      if(response&&response.ok){
+      if(response&&response.ok&&new URL(event.request.url).origin===self.location.origin){
         const cache=await caches.open(CACHE_NAME);
         cache.put(event.request,response.clone());
       }
