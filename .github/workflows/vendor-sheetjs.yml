@@ -1,4 +1,4 @@
-name: Vendor SheetJS 0.20.3 (temporary)
+name: Finalize local SheetJS integration (temporary)
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  vendor-sheetjs:
+  finalize:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -18,27 +18,77 @@ jobs:
         with:
           ref: feature/carne-salud-pwa
 
-      - name: Download and verify SheetJS 0.20.3
+      - name: Verify vendored SheetJS and switch app to local asset
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p vendor
-          curl --fail --location --retry 3 \
-            https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js \
-            --output vendor/xlsx.full.min.js
+          test -f vendor/xlsx.full.min.js
           echo '6b3130af1ceadf07caa0ec08af7addff  vendor/xlsx.full.min.js' | md5sum --check --strict
-          grep -q 'version="0.20.3"\|version="0.20.3"\|version='"'"'0.20.3'"'"'' vendor/xlsx.full.min.js || true
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('carne-salud.html')
+          text = html.read_text(encoding='utf-8')
+          old = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js'
+          if old in text:
+              text = text.replace(old, './vendor/xlsx.full.min.js')
+          html.write_text(text, encoding='utf-8')
+          PY
+          cat > sw-carne-salud.js <<'EOF'
+          const CACHE_NAME='juegolimpio-carne-salud-v2';
+          const CORE_ASSETS=[
+            './carne-salud.html',
+            './manifest.webmanifest',
+            './icons/carne-salud.svg',
+            './vendor/xlsx.full.min.js'
+          ];
 
-      - name: Commit vendored library
+          self.addEventListener('install',event=>{
+            event.waitUntil((async()=>{
+              const cache=await caches.open(CACHE_NAME);
+              await cache.addAll(CORE_ASSETS);
+              await self.skipWaiting();
+            })());
+          });
+
+          self.addEventListener('activate',event=>{
+            event.waitUntil((async()=>{
+              const keys=await caches.keys();
+              await Promise.all(keys.filter(k=>k!==CACHE_NAME&&k.startsWith('juegolimpio-carne-salud-')).map(k=>caches.delete(k)));
+              await self.clients.claim();
+            })());
+          });
+
+          self.addEventListener('fetch',event=>{
+            if(event.request.method!=='GET')return;
+            event.respondWith((async()=>{
+              const cached=await caches.match(event.request);
+              if(cached)return cached;
+              try{
+                const response=await fetch(event.request);
+                if(response&&response.ok&&new URL(event.request.url).origin===self.location.origin){
+                  const cache=await caches.open(CACHE_NAME);
+                  cache.put(event.request,response.clone());
+                }
+                return response;
+              }catch(error){
+                if(event.request.mode==='navigate')return caches.match('./carne-salud.html');
+                throw error;
+              }
+            })());
+          });
+          EOF
+
+      - name: Remove temporary workflow and commit final files
         shell: bash
         run: |
           set -euo pipefail
-          git add vendor/xlsx.full.min.js
-          if git diff --cached --quiet; then
-            echo 'SheetJS is already vendored.'
-            exit 0
-          fi
+          rm .github/workflows/vendor-sheetjs.yml
+          git add carne-salud.html sw-carne-salud.js vendor/xlsx.full.min.js .github/workflows/vendor-sheetjs.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Vendor SheetJS 0.20.3'
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit.'
+            exit 0
+          fi
+          git commit -m 'Use local SheetJS for offline health card'
           git push origin HEAD:feature/carne-salud-pwa
