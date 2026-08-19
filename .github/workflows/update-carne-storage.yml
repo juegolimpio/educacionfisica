@@ -1,0 +1,80 @@
+name: Update Carne storage metadata (temporary)
+
+on:
+  push:
+    branches:
+      - feature/carne-salud-pwa
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/carne-salud-pwa
+
+      - name: Apply conservative storage changes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('carne-salud.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = "const INSTALL_HINT_KEY='juegolimpio_carne_install_hint_v1';"
+          new = old + "\nconst BACKUP_KEY='juegolimpio_carne_backup_v1';"
+          if old not in s:
+              raise SystemExit('INSTALL_HINT_KEY marker not found')
+          s = s.replace(old, new, 1)
+
+          old = '<p class="muted" style="margin:10px 0 0">💾 Recordá respaldar periódicamente tus datos en Excel.</p>'
+          new = old + '\n      <p id="backup-meta" class="backup-meta">Último respaldo: todavía no registraste ninguno.</p>'
+          if old not in s:
+              raise SystemExit('backup paragraph marker not found')
+          s = s.replace(old, new, 1)
+
+          start = s.index('function exportExcel(){')
+          end = s.index('function normalizeHeader', start)
+          export_fn = '''function renderBackupMeta(){const box=document.getElementById('backup-meta');if(!box)return;const raw=localStorage.getItem(BACKUP_KEY);if(!raw){box.textContent='Último respaldo: todavía no registraste ninguno.';return;}const d=new Date(raw);if(Number.isNaN(d.getTime())){box.textContent='Último respaldo: sin fecha válida.';return;}const date=d.toLocaleDateString('es-UY',{day:'2-digit',month:'2-digit',year:'numeric'});const time=d.toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'});box.textContent=`Último respaldo: ${date} · ${time}`;}
+function markBackup(){localStorage.setItem(BACKUP_KEY,new Date().toISOString());renderBackupMeta();}
+async function requestPersistentStorage(){if(!navigator.storage?.persist)return;try{if(navigator.storage.persisted&&await navigator.storage.persisted())return;await navigator.storage.persist();}catch(e){console.warn('No se pudo solicitar almacenamiento persistente:',e);}}
+function exportExcel(){if(typeof XLSX==='undefined'){alert('El generador de Excel no está disponible. Cerrá y volvé a abrir la aplicación e intentá nuevamente.');return;}if(!state.groups.length){alert('No hay grupos para exportar.');return;}try{const wb=XLSX.utils.book_new();const used=new Set();state.groups.forEach(g=>{const rows=[['Nº','Nombre','Vencimiento','Días','Estado','Permiso']];g.students.forEach((s,i)=>{const st=statusFor(s.expiry);const perm=s.permission==='ENTREGADO'?'Entregado':s.permission==='NO ENTREGADO'?'No entregado':'Pendiente';rows.push([i+1,s.name,formatDateForExcel(s.expiry),st.days===null?'':st.days,st.label,perm]);});const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:6},{wch:30},{wch:14},{wch:10},{wch:16},{wch:16}];XLSX.utils.book_append_sheet(wb,ws,safeSheetName(g.name,used));});const stamp=new Date().toISOString().slice(0,10);XLSX.writeFile(wb,`juego-limpio-carne-salud-${stamp}.xlsx`);markBackup();}catch(e){console.error(e);alert('No se pudo generar el respaldo en Excel. Intentá nuevamente.');}}
+'''
+          s = s[:start] + export_fn + s[end:]
+
+          s = s.replace("if(typeof XLSX==='undefined'){alert('El lector de Excel no está disponible. Conectate a Internet, recargá la app una vez e intentá nuevamente.');return;}", "if(typeof XLSX==='undefined'){alert('El lector de Excel no está disponible. Cerrá y volvé a abrir la aplicación e intentá nuevamente.');return;}", 1)
+
+          old = "document.getElementById('new-group').addEventListener('keydown',e=>{if(e.key==='Enter')createGroup();});renderGroups();maybeShowInstallHint();"
+          new = "document.getElementById('new-group').addEventListener('keydown',e=>{if(e.key==='Enter')createGroup();});renderGroups();renderBackupMeta();requestPersistentStorage();maybeShowInstallHint();"
+          if old not in s:
+              raise SystemExit('initialization marker not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+
+          sw = Path('sw-carne-salud.js')
+          t = sw.read_text(encoding='utf-8')
+          if "juegolimpio-carne-salud-v2" not in t:
+              raise SystemExit('service worker cache v2 marker not found')
+          sw.write_text(t.replace('juegolimpio-carne-salud-v2','juegolimpio-carne-salud-v3',1), encoding='utf-8')
+
+      - name: Validate JavaScript and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re, pathlib
+          s=pathlib.Path('carne-salud.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S)
+          pathlib.Path('/tmp/carne-inline.js').write_text('\n'.join(scripts),encoding='utf-8')
+          PY
+          node --check /tmp/carne-inline.js
+          node --check sw-carne-salud.js
+          git add carne-salud.html sw-carne-salud.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Add persistent storage and backup timestamp'
+          git push origin HEAD:feature/carne-salud-pwa
