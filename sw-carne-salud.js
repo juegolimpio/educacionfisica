@@ -1,4 +1,4 @@
-const CACHE_NAME='juegolimpio-carne-salud-v4';
+const CACHE_NAME='juegolimpio-carne-salud-v5';
 const CORE_ASSETS=[
   './carne-salud.html',
   './manifest.webmanifest',
